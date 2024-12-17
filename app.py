@@ -1,62 +1,120 @@
-import pandas as pd
-import numpy as np
 import streamlit as st
-from sklearn.preprocessing import MinMaxScaler
-import pickle
-from tensorflow.keras.models import load_model
+import pandas as pd
+import matplotlib.pyplot as plt
+import requests
+from bs4 import BeautifulSoup
+from streamlit_option_menu import option_menu
 
-# Load mô hình và scaler
-model = load_model('lstm_model.h5')
-with open('scaler.pkl', 'rb') as f:
-    scaler = pickle.load(f)
+# Cấu hình Streamlit
+st.set_page_config(page_title="Phân Tích Xu Hướng Sản Phẩm", layout="wide")
 
-# Đọc dữ liệu từ file CSV
-data = pd.read_csv('_Dữ_liệu_giao_dịch_ngày__202406152152.csv')
+# Thanh điều hướng
+with st.sidebar:
+    selected = option_menu(
+        "Menu",
+        ["Crawl Dữ Liệu", "Phân Tích Dữ Liệu"],
+        icons=["cloud-download", "bar-chart"],
+        menu_icon="cast",
+        default_index=0,
+    )
 
-# Chọn các đặc trưng quan trọng
-features = ['Mở cửa', 'Đóng cửa', 'Cao nhất', 'Thấp nhất', 'Trung bình', 'GD khớp lệnh KL']
-data = data[['Ngày', 'Mã CK'] + features]
-data = data.sort_values(by=['Mã CK', 'Ngày'])
-data[features] = scaler.transform(data[features])
+# Hàm crawl dữ liệu từ Shopee
+def crawl_shopee(keyword="labubu", max_pages=1):
+    product_data = []
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+    try:
+        for page in range(max_pages):
+            url = f"https://shopee.vn/search?keyword={keyword}&page={page}"
+            response = requests.get(url, headers=headers)
+            soup = BeautifulSoup(response.content, "html.parser")
+            
+            # Tìm tất cả sản phẩm
+            items = soup.find_all("div", class_="shopee-search-item-result__item")
+            for item in items:
+                try:
+                    title = item.find("div", class_="v-text").get_text()
+                    sales = item.find("div", class_="v-badge").get_text() if item.find("div", class_="v-badge") else "0 sold"
+                    product_data.append({"Product": title, "Sales": sales})
+                except Exception:
+                    continue
+        
+        return pd.DataFrame(product_data)
+    except Exception as e:
+        st.error(f"Lỗi khi crawl dữ liệu từ Shopee: {e}")
+        return pd.DataFrame()
 
-# Tạo chuỗi thời gian cho LSTM
-def create_sequences(data, seq_length, features):
-    sequences = []
-    for stock in data['Mã CK'].unique():
-        stock_data = data[data['Mã CK'] == stock][features].values
-        for i in range(len(stock_data) - seq_length):
-            sequences.append(stock_data[i:i+seq_length])
-    return np.array(sequences)
+# Hàm giả lập crawl dữ liệu từ Facebook
+def crawl_facebook(keyword="labubu", max_posts=50):
+    # Đây là hàm giả lập. Để crawl thực tế, bạn cần sử dụng Facebook Graph API hoặc các công cụ phù hợp khác.
+    return pd.DataFrame({
+        "Post": [f"{keyword} is amazing!", f"Best gift for {keyword} lovers!", f"Limited {keyword} stocks!"],
+        "Likes": [150, 230, 300],
+        "Comments": [20, 35, 50]
+    })
 
-seq_length = 60
+# Trang Crawl Dữ Liệu
+if selected == "Crawl Dữ Liệu":
+    st.title("🛒 Crawl Dữ Liệu Từ Shopee & Facebook")
 
-# Dự đoán giá đóng cửa ngày tiếp theo
-def predict_next_close(stock_data, seq_length, model, features, scaler):
-    last_sequence = stock_data[features].values[-seq_length:]
-    last_sequence = scaler.transform(last_sequence)
-    last_sequence = np.expand_dims(last_sequence, axis=0)
-    predicted_price = model.predict(last_sequence)
-    predicted_price = scaler.inverse_transform(predicted_price)
-    return predicted_price[0][features.index('Đóng cửa')]
+    # Crawl từ Shopee
+    st.subheader("🔗 Crawl từ Shopee")
+    keyword = st.text_input("Nhập từ khóa tìm kiếm (ví dụ: labubu):", value="labubu")
+    max_pages = st.slider("Số trang cần crawl:", 1, 5, 1)
 
-# Tính toán lợi nhuận dự kiến cho mỗi mã chứng khoán
-profits = {}
-for stock in data['Mã CK'].unique():
-    stock_data = data[data['Mã CK'] == stock]
-    current_price = stock_data['Đóng cửa'].values[-1]
-    predicted_price = predict_next_close(stock_data, seq_length, model, features, scaler)
-    profit = (predicted_price - current_price) / current_price
-    profits[stock] = profit
+    if st.button("Crawl Shopee"):
+        shopee_data = crawl_shopee(keyword, max_pages)
+        if not shopee_data.empty:
+            st.write(f"Kết quả crawl từ Shopee ({len(shopee_data)} sản phẩm):")
+            st.dataframe(shopee_data)
+        else:
+            st.warning("Không có dữ liệu từ Shopee.")
 
-# Chọn mã chứng khoán có lợi nhuận dự kiến cao nhất
-top_stocks = sorted(profits, key=profits.get, reverse=True)[:10]
+    # Crawl từ Facebook
+    st.subheader("💬 Crawl từ Facebook")
+    if st.button("Crawl Facebook"):
+        facebook_data = crawl_facebook(keyword=keyword, max_posts=50)
+        if not facebook_data.empty:
+            st.write(f"Kết quả crawl từ Facebook ({len(facebook_data)} bài đăng):")
+            st.dataframe(facebook_data)
+        else:
+            st.warning("Không có dữ liệu từ Facebook.")
 
-# Triển khai trên Streamlit
-st.title("Stock Prediction System")
-budget = st.number_input("Enter your budget:", min_value=0, step=1000)
+# Trang Phân Tích Dữ Liệu
+if selected == "Phân Tích Dữ Liệu":
+    st.title("📈 Phân Tích Dữ Liệu Sản Phẩm")
 
-if st.button("Get Recommendations"):
-    # Hiển thị 10 mã chứng khoán có lợi nhuận cao nhất
-    st.write("Top 10 recommended stocks:")
-    for stock in top_stocks:
-        st.write(f"Stock: {stock}, Predicted Profit: {profits[stock]:.2%}")
+    # Kiểm tra dữ liệu đã được crawl
+    if 'shopee_data' in locals() and not shopee_data.empty:
+        st.subheader("📊 Dữ Liệu Từ Shopee")
+        st.dataframe(shopee_data)
+
+        # Chuyển đổi cột Sales thành số nguyên
+        shopee_data['Sales'] = shopee_data['Sales'].str.extract('(\d+)').astype(int)
+
+        # Hiển thị tổng số sản phẩm và tổng lượt bán
+        st.write(f"Tổng số sản phẩm: {len(shopee_data)}")
+        st.write(f"Tổng lượt bán: {shopee_data['Sales'].sum()}")
+
+        # Biểu đồ sản phẩm bán chạy nhất
+        st.subheader("🔥 Top 10 Sản Phẩm Bán Chạy Nhất")
+        top_products = shopee_data.sort_values(by='Sales', ascending=False).head(10)
+        fig, ax = plt.subplots()
+        ax.barh(top_products['Product'], top_products['Sales'], color='skyblue')
+        ax.set_xlabel('Số Lượng Bán')
+        ax.set_title('Top 10 Sản Phẩm Bán Chạy Nhất trên Shopee')
+        st.pyplot(fig)
+    else:
+        st.warning("Chưa có dữ liệu từ Shopee. Vui lòng crawl dữ liệu trước.")
+
+    # Kiểm tra dữ liệu từ Facebook
+    if 'facebook_data' in locals() and not facebook_data.empty:
+        st.subheader("💬 Dữ Liệu Từ Facebook")
+        st.dataframe(facebook_data)
+
+        # Biểu đồ tương tác trên Facebook
+        st.subheader("👍 Tương Tác Trên Facebook")
+        fig, ax = plt.subplots()
+        ax.bar(facebook_data['Post'], facebook_data['Likes'], label='Likes', color='blue
+::contentReference[oaicite:0]{index=0}
