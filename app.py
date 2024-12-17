@@ -129,7 +129,7 @@ if selected == "Phân Tích Dữ Liệu":
         st.dataframe(shopee_data)
 
         # Biểu đồ doanh số
-        fig, ax = plt.subplots(figsize=(3, 1))
+        fig, ax = plt.subplots(figsize=(5, 3))
         ax.bar(shopee_data["Product"], shopee_data["Sales"], color="skyblue")
         plt.xticks(rotation=45)
         st.pyplot(fig)
@@ -139,7 +139,7 @@ if selected == "Phân Tích Dữ Liệu":
         future_sales = predict_trend(shopee_data, "Sales", days=5)
         future_days = np.arange(len(shopee_data), len(shopee_data) + 5)
 
-        fig, ax = plt.subplots(figsize=(3, 1))
+        fig, ax = plt.subplots(figsize=(5, 3))
         ax.plot(shopee_data.index, shopee_data["Sales"], label="Actual Sales", marker='o')
         ax.plot(future_days, future_sales, label="Predicted Sales", linestyle="--", marker='o')
         ax.legend()
