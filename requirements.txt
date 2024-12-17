@@ -8,3 +8,4 @@ requests
 snscrape
 streamlit-option-menu
 selenium
+playwright
