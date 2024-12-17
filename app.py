@@ -9,6 +9,10 @@ from streamlit_option_menu import option_menu
 # Cấu hình Streamlit
 st.set_page_config(page_title="Facebook & Shopee Analysis", layout="wide")
 
+# Biến toàn cục để lưu dữ liệu
+fb_data = pd.DataFrame()
+shopee_data = pd.DataFrame()
+
 # Thanh điều hướng
 with st.sidebar:
     selected = option_menu(
@@ -17,7 +21,7 @@ with st.sidebar:
         default_index=0,
     )
 
-# Hàm giả lập dữ liệu Facebook
+# Hàm tạo dữ liệu giả lập Facebook
 def generate_fake_facebook_data(days=30, keyword="labubu"):
     date_range = [datetime.now() - timedelta(days=i) for i in range(days)]
     data = {
@@ -29,10 +33,10 @@ def generate_fake_facebook_data(days=30, keyword="labubu"):
     }
     return pd.DataFrame(data)
 
-# Hàm giả lập dữ liệu Shopee
+# Hàm tạo dữ liệu giả lập Shopee
 def generate_fake_shopee_data(days=30, keyword="labubu"):
     date_range = [datetime.now() - timedelta(days=i) for i in range(days)]
-    total_products = 500  # Tổng số sản phẩm giả lập
+    total_products = 500
     data = {
         "Date": date_range,
         "Products": total_products,
@@ -65,9 +69,9 @@ if selected == "Crawl Dữ Liệu":
     posts_fb = st.slider("Số ngày cần tạo dữ liệu:", 1, 30, 30)
     if st.button("Crawl Dữ Liệu Facebook"):
         fb_data = generate_fake_facebook_data(posts_fb, keyword_fb)
+        fb_data["Date"] = pd.to_datetime(fb_data["Date"])  # Chuyển Date về dạng datetime
         st.write(f"📊 Kết Quả Dữ Liệu Facebook với từ khóa '{keyword_fb}':")
         st.dataframe(fb_data)
-        fb_data.to_csv("facebook_data.csv", index=False)
 
     # Shopee Crawl
     st.subheader("🛒 Crawl Dữ Liệu Shopee")
@@ -75,9 +79,9 @@ if selected == "Crawl Dữ Liệu":
     days_shopee = st.slider("Số ngày cần tạo dữ liệu Shopee:", 1, 30, 30)
     if st.button("Crawl Dữ Liệu Shopee"):
         shopee_data = generate_fake_shopee_data(days_shopee, keyword_shopee)
+        shopee_data["Date"] = pd.to_datetime(shopee_data["Date"])  # Chuyển Date về dạng datetime
         st.write(f"📊 Kết Quả Dữ Liệu Shopee với từ khóa '{keyword_shopee}':")
         st.dataframe(shopee_data)
-        shopee_data.to_csv("shopee_data.csv", index=False)
 
 # Giao diện Phân Tích Dữ Liệu
 if selected == "Phân Tích Dữ Liệu":
@@ -85,54 +89,35 @@ if selected == "Phân Tích Dữ Liệu":
 
     # Phân tích Facebook
     st.subheader("💬 Phân Tích Dữ Liệu Facebook")
-    try:
-        fb_data = pd.read_csv("facebook_data.csv")
+    if not fb_data.empty:
         st.dataframe(fb_data)
 
-        # Dự đoán xu hướng
         st.subheader("🔮 Dự Đoán Xu Hướng Facebook")
         future_days = 30
         likes_prediction = predict_trend(fb_data, "Likes", future_days)
-        comments_prediction = predict_trend(fb_data, "Comments", future_days)
-        shares_prediction = predict_trend(fb_data, "Shares", future_days)
+        future_dates = pd.date_range(fb_data["Date"].max(), periods=future_days)
 
-        future_dates = pd.date_range(fb_data["Date"].min(), periods=len(fb_data) + future_days)
-
-        fig, ax = plt.subplots(figsize=(8, 5))
+        fig, ax = plt.subplots()
         ax.plot(fb_data["Date"], fb_data["Likes"], label="Actual Likes", color="blue")
-        ax.plot(future_dates[-future_days:], likes_prediction, "--", label="Predicted Likes", color="blue")
-        ax.plot(fb_data["Date"], fb_data["Comments"], label="Actual Comments", color="orange")
-        ax.plot(future_dates[-future_days:], comments_prediction, "--", label="Predicted Comments", color="orange")
-        ax.plot(fb_data["Date"], fb_data["Shares"], label="Actual Shares", color="green")
-        ax.plot(future_dates[-future_days:], shares_prediction, "--", label="Predicted Shares", color="green")
+        ax.plot(future_dates, likes_prediction, "--", label="Predicted Likes", color="blue")
         plt.legend()
         st.pyplot(fig)
-    except:
+    else:
         st.warning("Chưa có dữ liệu Facebook. Vui lòng crawl dữ liệu trước.")
 
     # Phân tích Shopee
     st.subheader("🛒 Phân Tích Dữ Liệu Shopee")
-    try:
-        shopee_data = pd.read_csv("shopee_data.csv")
+    if not shopee_data.empty:
         st.dataframe(shopee_data)
 
-        # Dự đoán xu hướng
         st.subheader("🔮 Dự Đoán Xu Hướng Shopee")
-        future_days = 30
-        price_prediction = predict_trend(shopee_data, "Average Price", future_days)
-        sales_prediction = predict_trend(shopee_data, "Total Sales", future_days)
-        reviews_prediction = predict_trend(shopee_data, "Positive Reviews", future_days)
+        price_prediction = predict_trend(shopee_data, "Average Price", 30)
+        future_dates = pd.date_range(shopee_data["Date"].max(), periods=30)
 
-        future_dates = pd.date_range(shopee_data["Date"].min(), periods=len(shopee_data) + future_days)
-
-        fig, ax = plt.subplots(figsize=(8, 5))
-        ax.plot(shopee_data["Date"], shopee_data["Average Price"], label="Actual Avg Price", color="blue")
-        ax.plot(future_dates[-future_days:], price_prediction, "--", label="Predicted Avg Price", color="blue")
-        ax.plot(shopee_data["Date"], shopee_data["Total Sales"], label="Actual Total Sales", color="orange")
-        ax.plot(future_dates[-future_days:], sales_prediction, "--", label="Predicted Total Sales", color="orange")
-        ax.plot(shopee_data["Date"], shopee_data["Positive Reviews"], label="Actual Reviews", color="green")
-        ax.plot(future_dates[-future_days:], reviews_prediction, "--", label="Predicted Reviews", color="green")
+        fig, ax = plt.subplots()
+        ax.plot(shopee_data["Date"], shopee_data["Average Price"], label="Actual Avg Price", color="orange")
+        ax.plot(future_dates, price_prediction, "--", label="Predicted Avg Price", color="orange")
         plt.legend()
         st.pyplot(fig)
-    except:
+    else:
         st.warning("Chưa có dữ liệu Shopee. Vui lòng crawl dữ liệu trước.")
