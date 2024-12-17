@@ -19,30 +19,49 @@ with st.sidebar:
     )
 
 # Hàm crawl dữ liệu từ Shopee
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+import pandas as pd
+import time
+
 def crawl_shopee(keyword="labubu", max_pages=1):
+    options = Options()
+    options.add_argument("--headless")  # Chạy không giao diện
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-gpu")
+    options.add_argument("window-size=1920,1080")
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+
+    # Đường dẫn đến chromedriver
+    service = Service("path_to_chromedriver")  # Thay path_to_chromedriver bằng đường dẫn thực tế
+
+    driver = webdriver.Chrome(service=service, options=options)
     product_data = []
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    }
+
     try:
         for page in range(max_pages):
             url = f"https://shopee.vn/search?keyword={keyword}&page={page}"
-            response = requests.get(url, headers=headers)
-            soup = BeautifulSoup(response.content, "html.parser")
-            
-            # Tìm tất cả sản phẩm
-            items = soup.find_all("div", class_="shopee-search-item-result__item")
+            driver.get(url)
+            time.sleep(5)  # Chờ trang load xong
+
+            # Lấy danh sách sản phẩm
+            items = driver.find_elements(By.CLASS_NAME, "shopee-search-item-result__item")
             for item in items:
                 try:
-                    title = item.find("div", class_="v-text").get_text()
-                    sales = item.find("div", class_="v-badge").get_text() if item.find("div", class_="v-badge") else "0 sold"
-                    product_data.append({"Product": title, "Sales": sales})
+                    title = item.find_element(By.CLASS_NAME, "ie3A+n").text
+                    price = item.find_element(By.CLASS_NAME, "ZEgDH9").text
+                    product_data.append({"Product": title, "Price": price})
                 except Exception:
                     continue
-        
+
+        driver.quit()
         return pd.DataFrame(product_data)
+
     except Exception as e:
-        st.error(f"Lỗi khi crawl dữ liệu từ Shopee: {e}")
+        driver.quit()
+        print(f"Lỗi: {e}")
         return pd.DataFrame()
 
 # Hàm giả lập crawl dữ liệu từ Facebook
