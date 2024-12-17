@@ -1,112 +1,134 @@
 import streamlit as st
 import pandas as pd
-from playwright.sync_api import sync_playwright
-from streamlit_option_menu import option_menu
 import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.linear_model import LinearRegression
+import requests
+from streamlit_option_menu import option_menu
 
 # Cấu hình Streamlit
-st.set_page_config(page_title="Shopee & Facebook Data", layout="wide")
+st.set_page_config(page_title="Shopee & Facebook Analysis", layout="wide")
 
 # Thanh điều hướng
 with st.sidebar:
     selected = option_menu(
         "Menu", ["Crawl Dữ Liệu", "Phân Tích Dữ Liệu"],
         icons=["cloud-download", "bar-chart"],
-        menu_icon="cast",
         default_index=0,
     )
 
-# Hàm crawl dữ liệu Shopee
-def crawl_shopee(keyword="labubu", max_pages=1):
-    product_data = []
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
-        try:
-            for page_num in range(max_pages):
-                url = f"https://shopee.vn/search?keyword={keyword}&page={page_num}"
-                page.goto(url)
-                page.wait_for_timeout(5000)  # Đợi 5s để trang tải xong
+# Hàm gọi Facebook Graph API
+def fetch_facebook_data(access_token, page_id, limit=10):
+    url = f"https://graph.facebook.com/v12.0/{page_id}/posts"
+    params = {
+        "fields": "message,likes.summary(true),comments.summary(true)",
+        "access_token": access_token,
+        "limit": limit
+    }
+    response = requests.get(url, params=params)
+    
+    if response.status_code == 200:
+        data = response.json()
+        posts = []
+        for post in data.get("data", []):
+            posts.append({
+                "Message": post.get("message", "No content"),
+                "Likes": post.get("likes", {}).get("summary", {}).get("total_count", 0),
+                "Comments": post.get("comments", {}).get("summary", {}).get("total_count", 0)
+            })
+        return pd.DataFrame(posts)
+    else:
+        st.error(f"Lỗi: {response.status_code}, {response.json()}")
+        return pd.DataFrame()
 
-                # Lấy danh sách sản phẩm
-                items = page.locator(".shopee-search-item-result__item")
-                count = items.count()
+# Dự đoán xu hướng bằng Linear Regression
+def predict_trend(data, column, days=5):
+    data["Day"] = range(len(data))
+    X = data[["Day"]]
+    y = data[column]
 
-                for i in range(count):
-                    try:
-                        title = items.nth(i).locator(".ie3A+n").inner_text()
-                        price = items.nth(i).locator(".ZEgDH9").inner_text()
-                        product_data.append({"Product": title, "Price": price})
-                    except:
-                        continue
-            browser.close()
-            return pd.DataFrame(product_data)
-        except Exception as e:
-            st.error(f"Lỗi: {e}")
-            browser.close()
-            return pd.DataFrame()
+    model = LinearRegression()
+    model.fit(X, y)
 
-# Hàm mock crawl Facebook
-def crawl_facebook(keyword="labubu", max_posts=10):
+    future_days = np.array(range(len(data), len(data) + days)).reshape(-1, 1)
+    predictions = model.predict(future_days)
+    return predictions
+
+# Mock dữ liệu Shopee
+def mock_shopee_data(keyword="labubu"):
     return pd.DataFrame({
-        "Post": [f"{keyword} is trending!", f"Get {keyword} now!", f"Limited stocks of {keyword}!"],
-        "Likes": [120, 230, 310],
-        "Comments": [10, 30, 50]
+        "Product": [f"{keyword} Doll {i}" for i in range(1, 11)],
+        "Price": [i * 100000 for i in range(10, 20)],
+        "Sales": [i * 10 for i in range(10, 20)]
     })
 
 # Giao diện Crawl Dữ Liệu
 if selected == "Crawl Dữ Liệu":
-    st.title("🛒 Crawl Dữ Liệu Shopee & Facebook")
+    st.title("🛒 Crawl Dữ Liệu Facebook & Shopee")
 
-    keyword = st.text_input("Nhập từ khóa tìm kiếm:", value="labubu")
-    max_pages = st.slider("Số trang cần crawl:", 1, 5, 1)
+    # Nhập token và page ID
+    st.subheader("🔗 Crawl Dữ Liệu Từ Facebook")
+    access_token = st.text_input("Access Token Facebook:", type="password")
+    page_id = st.text_input("Page ID hoặc Page Name:")
+    limit = st.slider("Số bài viết cần lấy:", 1, 50, 10)
 
-    if st.button("Crawl Shopee"):
-        shopee_data = crawl_shopee(keyword, max_pages)
-        if not shopee_data.empty:
-            st.write(f"Kết quả từ Shopee ({len(shopee_data)} sản phẩm):")
-            st.dataframe(shopee_data)
-            shopee_data.to_csv("shopee_data.csv", index=False)
+    if st.button("Lấy Dữ Liệu Facebook"):
+        if access_token and page_id:
+            fb_data = fetch_facebook_data(access_token, page_id, limit)
+            if not fb_data.empty:
+                st.write("Dữ liệu từ Facebook:")
+                st.dataframe(fb_data)
+                fb_data.to_csv("facebook_data.csv", index=False)
         else:
-            st.warning("Không có dữ liệu.")
+            st.warning("Vui lòng nhập Access Token và Page ID.")
 
-    if st.button("Crawl Facebook"):
-        facebook_data = crawl_facebook(keyword)
-        if not facebook_data.empty:
-            st.write(f"Kết quả từ Facebook ({len(facebook_data)} bài đăng):")
-            st.dataframe(facebook_data)
-            facebook_data.to_csv("facebook_data.csv", index=False)
-        else:
-            st.warning("Không có dữ liệu.")
+    st.subheader("🛒 Crawl Dữ Liệu Từ Shopee (Mô Phỏng)")
+    keyword = st.text_input("Nhập từ khóa tìm kiếm (ví dụ: labubu):", value="labubu")
+    if st.button("Lấy Dữ Liệu Shopee"):
+        shopee_data = mock_shopee_data(keyword)
+        st.write("Dữ liệu từ Shopee:")
+        st.dataframe(shopee_data)
+        shopee_data.to_csv("shopee_data.csv", index=False)
 
 # Giao diện Phân Tích Dữ Liệu
 if selected == "Phân Tích Dữ Liệu":
-    st.title("📊 Phân Tích Dữ Liệu")
-
-    # Phân tích Shopee
-    try:
-        shopee_data = pd.read_csv("shopee_data.csv")
-        st.subheader("🔥 Top Sản Phẩm Từ Shopee")
-        st.dataframe(shopee_data)
-
-        fig, ax = plt.subplots()
-        top_products = shopee_data.head(10)
-        ax.bar(top_products["Product"], top_products["Price"].str.replace("₫", "").astype(float))
-        plt.xticks(rotation=90)
-        st.pyplot(fig)
-    except Exception:
-        st.warning("Chưa có dữ liệu Shopee.")
+    st.title("📊 Phân Tích Dữ Liệu và Dự Đoán Xu Hướng")
 
     # Phân tích Facebook
+    st.subheader("💬 Phân Tích Dữ Liệu Facebook")
     try:
-        facebook_data = pd.read_csv("facebook_data.csv")
-        st.subheader("💬 Tương Tác Facebook")
-        st.dataframe(facebook_data)
+        fb_data = pd.read_csv("facebook_data.csv")
+        st.dataframe(fb_data)
+
+        # Biểu đồ tương tác
         fig, ax = plt.subplots()
-        ax.bar(facebook_data["Post"], facebook_data["Likes"], label="Likes")
-        ax.bar(facebook_data["Post"], facebook_data["Comments"], label="Comments")
+        ax.bar(fb_data["Message"], fb_data["Likes"], label="Likes", color="blue")
+        ax.bar(fb_data["Message"], fb_data["Comments"], label="Comments", color="orange")
         plt.xticks(rotation=45)
         plt.legend()
         st.pyplot(fig)
-    except Exception:
+
+        # Dự đoán xu hướng
+        st.subheader("📈 Dự Đoán Xu Hướng Lượt Thích")
+        future_likes = predict_trend(fb_data, "Likes")
+        plt.figure(figsize=(10, 6))
+        plt.plot(fb_data.index, fb_data["Likes"], label="Actual Likes", marker='o')
+        plt.plot(range(len(fb_data), len(fb_data) + len(future_likes)), future_likes, label="Predicted Likes", linestyle="--", marker='o')
+        plt.legend()
+        st.pyplot(plt)
+    except:
         st.warning("Chưa có dữ liệu Facebook.")
+
+    # Phân tích Shopee
+    st.subheader("🔥 Phân Tích Dữ Liệu Shopee")
+    try:
+        shopee_data = pd.read_csv("shopee_data.csv")
+        st.dataframe(shopee_data)
+
+        # Biểu đồ doanh số
+        fig, ax = plt.subplots()
+        ax.bar(shopee_data["Product"], shopee_data["Sales"], color="skyblue")
+        plt.xticks(rotation=45)
+        st.pyplot(fig)
+    except:
+        st.warning("Chưa có dữ liệu Shopee.")
