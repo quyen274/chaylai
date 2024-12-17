@@ -9,9 +9,11 @@ from streamlit_option_menu import option_menu
 # Cấu hình Streamlit
 st.set_page_config(page_title="Facebook & Shopee Analysis", layout="wide")
 
-# Biến toàn cục để lưu dữ liệu
-fb_data = pd.DataFrame()
-shopee_data = pd.DataFrame()
+# Sử dụng session_state để lưu trữ dữ liệu giữa các thao tác
+if "fb_data" not in st.session_state:
+    st.session_state.fb_data = None
+if "shopee_data" not in st.session_state:
+    st.session_state.shopee_data = None
 
 # Thanh điều hướng
 with st.sidebar:
@@ -68,20 +70,16 @@ if selected == "Crawl Dữ Liệu":
     keyword_fb = st.text_input("Nhập từ khóa tìm kiếm Facebook:", value="labubu")
     posts_fb = st.slider("Số ngày cần tạo dữ liệu:", 1, 30, 30)
     if st.button("Crawl Dữ Liệu Facebook"):
-        fb_data = generate_fake_facebook_data(posts_fb, keyword_fb)
-        fb_data["Date"] = pd.to_datetime(fb_data["Date"])  # Chuyển Date về dạng datetime
-        st.write(f"📊 Kết Quả Dữ Liệu Facebook với từ khóa '{keyword_fb}':")
-        st.dataframe(fb_data)
+        st.session_state.fb_data = generate_fake_facebook_data(posts_fb, keyword_fb)
+        st.success("Dữ liệu Facebook đã được tạo thành công!")
 
     # Shopee Crawl
     st.subheader("🛒 Crawl Dữ Liệu Shopee")
     keyword_shopee = st.text_input("Nhập từ khóa tìm kiếm Shopee:", value="labubu")
     days_shopee = st.slider("Số ngày cần tạo dữ liệu Shopee:", 1, 30, 30)
     if st.button("Crawl Dữ Liệu Shopee"):
-        shopee_data = generate_fake_shopee_data(days_shopee, keyword_shopee)
-        shopee_data["Date"] = pd.to_datetime(shopee_data["Date"])  # Chuyển Date về dạng datetime
-        st.write(f"📊 Kết Quả Dữ Liệu Shopee với từ khóa '{keyword_shopee}':")
-        st.dataframe(shopee_data)
+        st.session_state.shopee_data = generate_fake_shopee_data(days_shopee, keyword_shopee)
+        st.success("Dữ liệu Shopee đã được tạo thành công!")
 
 # Giao diện Phân Tích Dữ Liệu
 if selected == "Phân Tích Dữ Liệu":
@@ -89,7 +87,8 @@ if selected == "Phân Tích Dữ Liệu":
 
     # Phân tích Facebook
     st.subheader("💬 Phân Tích Dữ Liệu Facebook")
-    if not fb_data.empty:
+    if st.session_state.fb_data is not None:
+        fb_data = st.session_state.fb_data
         st.dataframe(fb_data)
 
         st.subheader("🔮 Dự Đoán Xu Hướng Facebook")
@@ -107,7 +106,8 @@ if selected == "Phân Tích Dữ Liệu":
 
     # Phân tích Shopee
     st.subheader("🛒 Phân Tích Dữ Liệu Shopee")
-    if not shopee_data.empty:
+    if st.session_state.shopee_data is not None:
+        shopee_data = st.session_state.shopee_data
         st.dataframe(shopee_data)
 
         st.subheader("🔮 Dự Đoán Xu Hướng Shopee")
