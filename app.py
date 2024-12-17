@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.linear_model import LinearRegression
-import requests
 from streamlit_option_menu import option_menu
 
 # Cấu hình Streamlit
@@ -17,31 +16,16 @@ with st.sidebar:
         default_index=0,
     )
 
-# Hàm gọi Facebook Graph API
-def fetch_facebook_data(access_token, page_id, limit=10):
-    url = f"https://graph.facebook.com/v12.0/{page_id}/posts"
-    params = {
-        "fields": "message,likes.summary(true),comments.summary(true)",
-        "access_token": access_token,
-        "limit": limit
-    }
-    response = requests.get(url, params=params)
-    
-    if response.status_code == 200:
-        data = response.json()
-        posts = []
-        for post in data.get("data", []):
-            posts.append({
-                "Message": post.get("message", "No content"),
-                "Likes": post.get("likes", {}).get("summary", {}).get("total_count", 0),
-                "Comments": post.get("comments", {}).get("summary", {}).get("total_count", 0)
-            })
-        return pd.DataFrame(posts)
-    else:
-        st.error(f"Lỗi: {response.status_code}, {response.json()}")
-        return pd.DataFrame()
+# Hàm giả lập dữ liệu Facebook
+def fake_facebook_data(keyword="labubu", posts=10):
+    return pd.DataFrame({
+        "Message": [f"Bài viết {i} về {keyword}" for i in range(1, posts+1)],
+        "Likes": np.random.randint(100, 1000, posts),
+        "Comments": np.random.randint(20, 500, posts),
+        "Shares": np.random.randint(10, 300, posts)
+    })
 
-# Hàm mô phỏng dữ liệu Shopee
+# Hàm giả lập dữ liệu Shopee
 def mock_shopee_data(keyword="labubu"):
     return pd.DataFrame({
         "Product": [f"{keyword} Doll {i}" for i in range(1, 11)],
@@ -66,30 +50,32 @@ def predict_trend(data, column, days=5):
 if selected == "Crawl Dữ Liệu":
     st.title("🔗 Crawl Dữ Liệu Facebook & Shopee")
 
-    # Facebook Crawl
-    st.subheader("📊 Crawl Dữ Liệu Facebook")
-    access_token = st.text_input("Access Token Facebook:", type="password")
-    page_id = st.text_input("Page ID hoặc Page Name:")
-    limit = st.slider("Số bài viết cần lấy:", 1, 50, 10)
+    # Facebook Crawl (Giả lập)
+    st.subheader("📊 Crawl Dữ Liệu Facebook (Giả Lập)")
+    keyword_fb = st.text_input("Nhập từ khóa tìm kiếm Facebook:", value="labubu")
+    posts = st.slider("Số bài viết cần lấy:", 1, 50, 10)
 
     if st.button("Lấy Dữ Liệu Facebook"):
-        if access_token and page_id:
-            fb_data = fetch_facebook_data(access_token, page_id, limit)
-            if not fb_data.empty:
-                st.write("📊 Dữ Liệu Từ Facebook:")
-                st.dataframe(fb_data)
-                fb_data.to_csv("facebook_data.csv", index=False)
-        else:
-            st.warning("Vui lòng nhập Access Token và Page ID.")
+        fb_data = fake_facebook_data(keyword_fb, posts)
+        st.write("📊 Dữ Liệu Từ Facebook (Giả Lập):")
+        st.dataframe(fb_data)
 
-    # Shopee Crawl (mock)
-    st.subheader("🛒 Crawl Dữ Liệu Shopee (Mô Phỏng)")
-    keyword = st.text_input("Nhập từ khóa tìm kiếm Shopee:", value="labubu")
+        # Lưu dữ liệu vào CSV
+        fb_data.to_csv("facebook_data.csv", index=False)
+        st.success("Dữ liệu đã được lưu thành công.")
+
+    # Shopee Crawl (Giả lập)
+    st.subheader("🛒 Crawl Dữ Liệu Shopee (Giả Lập)")
+    keyword_shopee = st.text_input("Nhập từ khóa tìm kiếm Shopee:", value="labubu")
+
     if st.button("Lấy Dữ Liệu Shopee"):
-        shopee_data = mock_shopee_data(keyword)
-        st.write("📊 Dữ Liệu Từ Shopee:")
+        shopee_data = mock_shopee_data(keyword_shopee)
+        st.write("📊 Dữ Liệu Từ Shopee (Giả Lập):")
         st.dataframe(shopee_data)
+
+        # Lưu dữ liệu vào CSV
         shopee_data.to_csv("shopee_data.csv", index=False)
+        st.success("Dữ liệu đã được lưu thành công.")
 
 # Giao diện Phân Tích Dữ Liệu
 if selected == "Phân Tích Dữ Liệu":
@@ -101,10 +87,18 @@ if selected == "Phân Tích Dữ Liệu":
         fb_data = pd.read_csv("facebook_data.csv")
         st.dataframe(fb_data)
 
+        # Tổng quan dữ liệu
+        st.write("**Tổng Số Bài Đăng:**", len(fb_data))
+        st.write("**Tổng Số Likes:**", fb_data["Likes"].sum())
+        st.write("**Tổng Số Comments:**", fb_data["Comments"].sum())
+        st.write("**Tổng Số Shares:**", fb_data["Shares"].sum())
+
         # Biểu đồ tương tác
+        st.subheader("📊 Biểu Đồ Tương Tác")
         fig, ax = plt.subplots(figsize=(5, 3))
         ax.bar(fb_data["Message"], fb_data["Likes"], label="Likes", color="blue")
         ax.bar(fb_data["Message"], fb_data["Comments"], label="Comments", color="orange")
+        ax.bar(fb_data["Message"], fb_data["Shares"], label="Shares", color="green")
         plt.xticks(rotation=45)
         plt.legend()
         st.pyplot(fig)
@@ -129,6 +123,7 @@ if selected == "Phân Tích Dữ Liệu":
         st.dataframe(shopee_data)
 
         # Biểu đồ doanh số
+        st.subheader("📊 Biểu Đồ Doanh Số")
         fig, ax = plt.subplots(figsize=(5, 3))
         ax.bar(shopee_data["Product"], shopee_data["Sales"], color="skyblue")
         plt.xticks(rotation=45)
