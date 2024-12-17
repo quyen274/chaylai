@@ -117,4 +117,4 @@ if selected == "Phân Tích Dữ Liệu":
         st.subheader("👍 Tương Tác Trên Facebook")
         fig, ax = plt.subplots()
         ax.bar(facebook_data['Post'], facebook_data['Likes'], label='Likes', color='blue')
-::contentReference[oaicite:0]{index=0}
+
