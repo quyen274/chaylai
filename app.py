@@ -118,12 +118,6 @@ if selected == "Phân Tích Dữ Liệu":
 
         # Dự đoán xu hướng
         st.subheader("🔮 Dự Đoán Xu Hướng Shopee")
-        future_days = 30
-        price_prediction = predict_trend(shopee_data, "Average Price", future_days)
-        sales_prediction = predict_trend(shopee_data, "Total Sales", future_days)
-        reviews_prediction = predict_trend(shopee_data, "Positive Reviews", future_days)
-
-        future_dates = pd.date_range(shopee_data["Date"].min(), periods=len(shopee_data) + future_days)
 
         fig, ax = plt.subplots(figsize=(8, 5))
         ax.plot(shopee_data["Date"], shopee_data["Average Price"], label="Actual Avg Price", color="blue")
