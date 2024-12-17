@@ -9,7 +9,7 @@ from streamlit_option_menu import option_menu
 # Cấu hình Streamlit
 st.set_page_config(page_title="Facebook & Shopee Analysis", layout="wide")
 
-# Sử dụng session_state để lưu trữ dữ liệu giữa các thao tác
+# Sử dụng session_state để lưu dữ liệu giữa các thao tác
 if "fb_data" not in st.session_state:
     st.session_state.fb_data = None
 if "shopee_data" not in st.session_state:
@@ -91,15 +91,13 @@ if selected == "Phân Tích Dữ Liệu":
         fb_data = st.session_state.fb_data
         st.dataframe(fb_data)
 
-        st.subheader("🔮 Dự Đoán Xu Hướng Facebook")
-        future_days = 30
-        likes_prediction = predict_trend(fb_data, "Likes", future_days)
-        future_dates = pd.date_range(fb_data["Date"].max(), periods=future_days)
-
+        st.subheader("📊 Biểu Đồ Phân Tích Facebook")
         fig, ax = plt.subplots()
-        ax.plot(fb_data["Date"], fb_data["Likes"], label="Actual Likes", color="blue")
-        ax.plot(future_dates, likes_prediction, "--", label="Predicted Likes", color="blue")
+        ax.plot(fb_data["Date"], fb_data["Likes"], label="Likes", color="blue")
+        ax.plot(fb_data["Date"], fb_data["Comments"], label="Comments", color="orange")
+        ax.plot(fb_data["Date"], fb_data["Shares"], label="Shares", color="green")
         plt.legend()
+        plt.title("Xu Hướng Tương Tác Facebook")
         st.pyplot(fig)
     else:
         st.warning("Chưa có dữ liệu Facebook. Vui lòng crawl dữ liệu trước.")
@@ -110,14 +108,23 @@ if selected == "Phân Tích Dữ Liệu":
         shopee_data = st.session_state.shopee_data
         st.dataframe(shopee_data)
 
-        st.subheader("🔮 Dự Đoán Xu Hướng Shopee")
-        price_prediction = predict_trend(shopee_data, "Average Price", 30)
-        future_dates = pd.date_range(shopee_data["Date"].max(), periods=30)
-
+        st.subheader("📊 Biểu Đồ Phân Tích Shopee")
         fig, ax = plt.subplots()
-        ax.plot(shopee_data["Date"], shopee_data["Average Price"], label="Actual Avg Price", color="orange")
-        ax.plot(future_dates, price_prediction, "--", label="Predicted Avg Price", color="orange")
+        ax.plot(shopee_data["Date"], shopee_data["Total Sales"], label="Total Sales", color="blue")
+        ax.plot(shopee_data["Date"], shopee_data["Average Price"], label="Average Price", color="orange")
         plt.legend()
+        plt.title("Xu Hướng Bán Hàng Shopee")
+        st.pyplot(fig)
+
+        st.subheader("🔮 Dự Đoán Số Lượng Có Thể Bán")
+        future_days = 30
+        sales_prediction = predict_trend(shopee_data, "Total Sales", future_days)
+        future_dates = pd.date_range(shopee_data["Date"].max(), periods=future_days)
+
+        # Vẽ biểu đồ dự đoán
+        fig, ax = plt.subplots()
+        ax.bar(future_dates, sales_prediction, color="green")
+        plt.title("Dự Đoán Số Lượng Bán Trong 30 Ngày Tiếp Theo")
         st.pyplot(fig)
     else:
         st.warning("Chưa có dữ liệu Shopee. Vui lòng crawl dữ liệu trước.")
