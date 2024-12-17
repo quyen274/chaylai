@@ -1,5 +1,10 @@
 streamlit
 pandas
 numpy
+matplotlib
 scikit-learn
-tensorflow
+beautifulsoup4
+requests
+snscrape
+streamlit-option-menu
+selenium
