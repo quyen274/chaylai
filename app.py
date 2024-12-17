@@ -42,24 +42,21 @@ def generate_fake_shopee_data(days=30, keyword="labubu"):
     data = {
         "Date": date_range,
         "Products": total_products,
-        "Average Price": np.random.uniform(50000, 500000, days),
+        "Average Price": np.random.uniform(400000, 600000, days),
         "Total Sales": np.random.randint(500, 5000, days),
         "Positive Reviews": np.random.randint(300, 3000, days),
     }
     return pd.DataFrame(data)
 
-# Hàm dự đoán xu hướng
-def predict_trend(data, column, future_days=30):
-    data["Day"] = range(len(data))
-    X = data[["Day"]]
-    y = data[column]
-
-    model = LinearRegression()
-    model.fit(X, y)
-
-    future_X = np.array(range(len(data), len(data) + future_days)).reshape(-1, 1)
-    future_y = model.predict(future_X)
-    return future_y
+# Hàm dự đoán số lượng bán biến động ngẫu nhiên
+def predict_random_trend(data, column, future_days=30):
+    base_value = data[column].iloc[-1]
+    predictions = []
+    for i in range(future_days):
+        change = np.random.randint(-200, 200)  # Biến động ngẫu nhiên
+        base_value = max(base_value + change, 0)  # Không cho phép âm
+        predictions.append(base_value)
+    return predictions
 
 # Giao diện Crawl Dữ Liệu
 if selected == "Crawl Dữ Liệu":
@@ -91,13 +88,22 @@ if selected == "Phân Tích Dữ Liệu":
         fb_data = st.session_state.fb_data
         st.dataframe(fb_data)
 
-        st.subheader("📊 Biểu Đồ Phân Tích Facebook")
-        fig, ax = plt.subplots()
-        ax.plot(fb_data["Date"], fb_data["Likes"], label="Likes", color="blue")
-        ax.plot(fb_data["Date"], fb_data["Comments"], label="Comments", color="orange")
-        ax.plot(fb_data["Date"], fb_data["Shares"], label="Shares", color="green")
-        plt.legend()
-        plt.title("Xu Hướng Tương Tác Facebook")
+        st.subheader("📊 Biểu Đồ Tách Riêng Facebook")
+        fig, axs = plt.subplots(2, 2, figsize=(10, 8))
+
+        axs[0, 0].bar(fb_data["Date"], fb_data["Posts"], color="blue")
+        axs[0, 0].set_title("Số Bài Đăng")
+
+        axs[0, 1].bar(fb_data["Date"], fb_data["Likes"], color="green")
+        axs[0, 1].set_title("Số Lượt Thích")
+
+        axs[1, 0].bar(fb_data["Date"], fb_data["Comments"], color="orange")
+        axs[1, 0].set_title("Số Bình Luận")
+
+        axs[1, 1].bar(fb_data["Date"], fb_data["Shares"], color="red")
+        axs[1, 1].set_title("Số Chia Sẻ")
+
+        plt.tight_layout()
         st.pyplot(fig)
     else:
         st.warning("Chưa có dữ liệu Facebook. Vui lòng crawl dữ liệu trước.")
@@ -108,22 +114,25 @@ if selected == "Phân Tích Dữ Liệu":
         shopee_data = st.session_state.shopee_data
         st.dataframe(shopee_data)
 
-        st.subheader("📊 Biểu Đồ Phân Tích Shopee")
-        fig, ax = plt.subplots()
-        ax.plot(shopee_data["Date"], shopee_data["Total Sales"], label="Total Sales", color="blue")
-        ax.plot(shopee_data["Date"], shopee_data["Average Price"], label="Average Price", color="orange")
-        plt.legend()
-        plt.title("Xu Hướng Bán Hàng Shopee")
+        st.subheader("📊 Biểu Đồ Tách Riêng Shopee")
+        fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+
+        ax[0].bar(shopee_data["Date"], shopee_data["Total Sales"], color="blue")
+        ax[0].set_title("Tổng Số Lượng Bán")
+
+        ax[1].bar(shopee_data["Date"], shopee_data["Positive Reviews"], color="green")
+        ax[1].set_title("Số Đánh Giá Tích Cực")
+
+        plt.tight_layout()
         st.pyplot(fig)
 
         st.subheader("🔮 Dự Đoán Số Lượng Có Thể Bán")
         future_days = 30
-        sales_prediction = predict_trend(shopee_data, "Total Sales", future_days)
+        sales_prediction = predict_random_trend(shopee_data, "Total Sales", future_days)
         future_dates = pd.date_range(shopee_data["Date"].max(), periods=future_days)
 
-        # Vẽ biểu đồ dự đoán
-        fig, ax = plt.subplots()
-        ax.bar(future_dates, sales_prediction, color="green")
+        fig, ax = plt.subplots(figsize=(8, 5))
+        ax.bar(future_dates, sales_prediction, color="purple")
         plt.title("Dự Đoán Số Lượng Bán Trong 30 Ngày Tiếp Theo")
         st.pyplot(fig)
     else:
