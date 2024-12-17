@@ -94,7 +94,7 @@ if selected == "Phân Tích Dữ Liệu":
         future_likes = predict_trend(fb_data, "Likes", days=5)
         future_days = np.arange(len(fb_data), len(fb_data) + 5)
 
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(6, 3))
         plt.plot(fb_data.index, fb_data["Likes"], label="Actual Likes", marker='o')
         plt.plot(future_days, future_likes, label="Predicted Likes", linestyle="--", marker='o')
         plt.title("Dự Đoán Xu Hướng Lượt Thích")
