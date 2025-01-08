@@ -53,19 +53,21 @@ def simulate_new_data(data):
 # Adjust the dataset time
 current_day_sales = adjust_time(current_day_sales)
 
-# Placeholder for the chart
-chart_placeholder = st.empty()
-
-# Initialize scroll position globally
+# Initialize session state for data and scroll position
+if 'data' not in st.session_state:
+    st.session_state['data'] = current_day_sales.copy()
 if 'scroll_position' not in st.session_state:
     st.session_state['scroll_position'] = 0
 
-# Simulate data in real-time
-data = current_day_sales.copy()
+# Placeholder for the chart
+chart_placeholder = st.empty()
 
 while True:
+    # Update data with simulated new rows
+    st.session_state['data'] = simulate_new_data(st.session_state['data'])
+
     # Filter data based on user selections
-    filtered_data = filter_data(data, selected_platforms, selected_products)
+    filtered_data = filter_data(st.session_state['data'], selected_platforms, selected_products)
 
     # Prepare data for chart
     pivot_data = prepare_data(filtered_data)
@@ -74,17 +76,20 @@ while True:
     max_scroll_position = max(len(pivot_data) - zoom_level, 0)
 
     # Display horizontal slider for viewing old data (persistent slider)
-    st.session_state['scroll_position'] = st.slider(
+    scroll_position = st.slider(
         "Lướt lại dữ liệu cũ:",
         min_value=0,
         max_value=max_scroll_position,
         value=st.session_state['scroll_position'],
         step=1,
-        format="%d"
+        key='scroll_slider'
     )
 
+    # Update the scroll position in session state
+    st.session_state['scroll_position'] = scroll_position
+
     # Set the visible range based on the slider position
-    visible_data = pivot_data.iloc[st.session_state['scroll_position']:st.session_state['scroll_position'] + zoom_level]
+    visible_data = pivot_data.iloc[scroll_position:scroll_position + zoom_level]
 
     # Plot combined chart
     fig, ax = plt.subplots(figsize=(12, 6))
@@ -120,9 +125,6 @@ while True:
 
     # Update the chart in the placeholder
     chart_placeholder.pyplot(fig, clear_figure=True)
-
-    # Simulate new data without affecting the slider
-    data = simulate_new_data(data)
 
     # Pause for real-time simulation
     time.sleep(5)
