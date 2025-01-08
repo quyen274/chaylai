@@ -19,6 +19,7 @@ st.write("Biểu đồ kết hợp: cột chồng và đường hiển thị doa
 selected_platforms = st.sidebar.multiselect("Chọn nền tảng:", platforms, default=platforms)
 selected_products = st.sidebar.multiselect("Chọn loại sản phẩm:", products, default=products)
 zoom_level = st.sidebar.slider("Chọn số lượng cột hiển thị:", 5, 50, 10)
+data_scroll_position = st.sidebar.slider("Lướt lại dữ liệu cũ:", 0, 100, 0)
 
 # Filter data based on user selection
 def filter_data(data, platforms, products):
@@ -68,9 +69,9 @@ while True:
     pivot_data = prepare_data(filtered_data)
 
     # Scroll logic for zoom level
-    if len(pivot_data) > zoom_level:
-        start_index = len(pivot_data) - zoom_level
-    visible_data = pivot_data.iloc[start_index:]
+    max_scroll_position = max(len(pivot_data) - zoom_level, 0)
+    start_index = min(max_scroll_position, data_scroll_position)
+    visible_data = pivot_data.iloc[start_index:start_index + zoom_level]
 
     # Plot combined chart
     fig, ax = plt.subplots(figsize=(12, 6))
@@ -109,6 +110,9 @@ while True:
 
     # Simulate new data
     data = simulate_new_data(data)
+
+    # Update scroll bar dynamically
+    st.sidebar.slider("Lướt lại dữ liệu cũ:", 0, max(len(pivot_data) - zoom_level, 0), start_index, key='scroll')
 
     # Pause for real-time simulation
     time.sleep(5)
