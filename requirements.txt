@@ -9,4 +9,4 @@ snscrape
 streamlit-option-menu
 selenium
 playwright
-plotpy
+plotly
