@@ -2,11 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import RendererAgg
 import time
-
-# Required for Streamlit to work with Matplotlib
-_lock = RendererAgg.lock
 
 # Initialize the fake dataset for simulation
 platforms = ['Shopee', 'TikTok', 'Lazada']
@@ -64,33 +60,32 @@ while True:
     visible_data = pivot_data.iloc[start_index:]
 
     # Plot combined chart
-    with _lock:
-        fig, ax1 = plt.subplots(figsize=(12, 6))
+    fig, ax1 = plt.subplots(figsize=(12, 6))
 
-        # Stacked column chart
-        visible_data.plot(kind='bar', stacked=True, ax=ax1, alpha=0.8, width=0.8)
-        ax1.set_ylabel("Doanh Số (15 phút)")
-        ax1.set_xlabel("Thời Gian")
-        ax1.set_title("Biểu Đồ Kết Hợp: Doanh Số Theo Thời Gian")
-        ax1.tick_params(axis='x', rotation=45)
+    # Stacked column chart
+    visible_data.plot(kind='bar', stacked=True, ax=ax1, alpha=0.8, width=0.8)
+    ax1.set_ylabel("Doanh Số (15 phút)")
+    ax1.set_xlabel("Thời Gian")
+    ax1.set_title("Biểu Đồ Kết Hợp: Doanh Số Theo Thời Gian")
+    ax1.tick_params(axis='x', rotation=45)
 
-        # Line chart for each platform
-        for platform in platforms:
-            if platform in visible_data.columns:
-                ax1.plot(
-                    visible_data.index,
-                    visible_data[platform],
-                    marker='o',
-                    linestyle='-',
-                    label=f"{platform} (Đường)",
-                    linewidth=2
-                )
+    # Line chart for each platform
+    for platform in platforms:
+        if platform in visible_data.columns:
+            ax1.plot(
+                visible_data.index,
+                visible_data[platform],
+                marker='o',
+                linestyle='-',
+                label=f"{platform} (Đường)",
+                linewidth=2
+            )
 
-        # Add legend
-        ax1.legend(loc="upper left")
+    # Add legend
+    ax1.legend(loc="upper left")
 
-        # Display the chart
-        st.pyplot(fig)
+    # Display the chart
+    st.pyplot(fig)
 
     # Pause for real-time simulation
-    time.sleep(5)
+    time.sleep(5)s
