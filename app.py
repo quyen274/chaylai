@@ -56,9 +56,6 @@ for _ in range(20):
         index='Time', columns='Platform', values='Sales (15 min)', aggfunc='sum', fill_value=0
     )
 
-    # Prepare data for line chart
-    total_sales = filtered_data.groupby('Time')['Sales (15 min)'].sum()
-
     # Plot the data
     fig, ax1 = plt.subplots(figsize=(10, 6))
 
@@ -69,9 +66,11 @@ for _ in range(20):
     ax1.set_title("Biểu Đồ Kết Hợp: Doanh Số Theo Thời Gian")
     ax1.tick_params(axis='x', rotation=45)
 
-    # Line chart
+    # Line chart for each platform
     ax2 = ax1.twinx()
-    ax2.plot(total_sales.index, total_sales.values, color='red', marker='o', label="Tổng Doanh Số")
+    for platform in platforms:
+        if platform in pivot_data.columns:
+            ax2.plot(pivot_data.index, pivot_data[platform], marker='o', label=f"{platform}", linestyle='-')
     ax2.set_ylabel("Tổng Doanh Số")
     ax2.legend(loc="upper left")
 
