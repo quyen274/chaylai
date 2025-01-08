@@ -56,13 +56,12 @@ current_day_sales = adjust_time(current_day_sales)
 # Placeholder for the chart
 chart_placeholder = st.empty()
 
-# Simulate data in real-time
-data = current_day_sales.copy()
-start_index = 0
-
 # Initialize scroll position globally
 if 'scroll_position' not in st.session_state:
     st.session_state['scroll_position'] = 0
+
+# Simulate data in real-time
+data = current_day_sales.copy()
 
 while True:
     # Filter data based on user selections
@@ -74,15 +73,14 @@ while True:
     # Update maximum scroll position dynamically
     max_scroll_position = max(len(pivot_data) - zoom_level, 0)
 
-    # Add horizontal slider for viewing old data (persistent slider)
+    # Display horizontal slider for viewing old data (persistent slider)
     st.session_state['scroll_position'] = st.slider(
         "Lướt lại dữ liệu cũ:",
         min_value=0,
         max_value=max_scroll_position,
         value=st.session_state['scroll_position'],
         step=1,
-        format="%d",
-        key='persistent_scroll'
+        format="%d"
     )
 
     # Set the visible range based on the slider position
