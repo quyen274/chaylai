@@ -51,18 +51,29 @@ for _ in range(20):
     filtered_data = data[(data['Platform'].isin(platform_filter)) &
                          (data['Product'].isin(product_filter))]
 
-    # Stacked column chart for sales
+    # Prepare data for stacked column chart
     pivot_data = filtered_data.pivot_table(
         index='Time', columns='Platform', values='Sales (15 min)', aggfunc='sum', fill_value=0
     )
 
+    # Prepare data for line chart
+    total_sales = filtered_data.groupby('Time')['Sales (15 min)'].sum()
+
     # Plot the data
-    fig, ax = plt.subplots(figsize=(10, 6))
-    pivot_data.plot(kind='bar', stacked=True, ax=ax)
-    ax.set_title("Biểu Đồ Cột Chồng: Doanh Số Theo Thời Gian")
-    ax.set_xlabel("Thời Gian")
-    ax.set_ylabel("Doanh Số (15 phút)")
-    plt.xticks(rotation=45)
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+
+    # Stacked column chart
+    pivot_data.plot(kind='bar', stacked=True, ax=ax1, color=['#1f77b4', '#ff7f0e', '#2ca02c'])
+    ax1.set_ylabel("Doanh Số (15 phút)")
+    ax1.set_xlabel("Thời Gian")
+    ax1.set_title("Biểu Đồ Kết Hợp: Doanh Số Theo Thời Gian")
+    ax1.tick_params(axis='x', rotation=45)
+
+    # Line chart
+    ax2 = ax1.twinx()
+    ax2.plot(total_sales.index, total_sales.values, color='red', marker='o', label="Tổng Doanh Số")
+    ax2.set_ylabel("Tổng Doanh Số")
+    ax2.legend(loc="upper left")
 
     # Display chart
     chart_placeholder.pyplot(fig)
