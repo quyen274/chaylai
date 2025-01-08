@@ -47,6 +47,9 @@ def prepare_data(data):
 start_index = 0
 data = current_day_sales.copy()
 
+# Placeholder for the chart
+chart_placeholder = st.empty()
+
 # Main loop for live updates
 while True:
     # Simulate live data
@@ -85,8 +88,8 @@ while True:
     # Add legend
     ax1.legend(loc="upper left")
 
-    # Display the chart
-    st.pyplot(fig, clear_figure=True)
+    # Update the chart in the placeholder
+    chart_placeholder.pyplot(fig, clear_figure=True)
 
     # Pause for real-time simulation
     time.sleep(5)
