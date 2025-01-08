@@ -18,7 +18,7 @@ current_day_sales = pd.DataFrame({
 
 # Streamlit setup
 st.title('Báo Cáo Tự Động Về Doanh Số')
-st.write("Biểu đồ liên tục cập nhật với dữ liệu mới, cùng thanh trượt để xem dữ liệu cũ.")
+st.write("Biểu đồ liên tục cập nhật với dữ liệu mới, hiển thị cột chồng và đường cho từng sàn.")
 
 # Sidebar for zooming options
 zoom_level = st.sidebar.slider("Chọn số lượng cột hiển thị:", 5, 50, 10)
@@ -67,18 +67,18 @@ while True:
     fig, ax1 = plt.subplots(figsize=(12, 6))
 
     # Stacked column chart
-    visible_data.plot(kind='bar', stacked=True, ax=ax1, alpha=0.8, width=0.8)
+    visible_data.plot(kind='bar', stacked=True, ax=ax1, alpha=0.8, width=0.8, color=['#1f77b4', '#ff7f0e', '#2ca02c'])
     ax1.set_ylabel("Doanh Số (15 phút)")
     ax1.set_xlabel("Thời Gian")
     ax1.set_title("Biểu Đồ Kết Hợp: Doanh Số Theo Thời Gian")
     ax1.tick_params(axis='x', rotation=45)
 
-    # Line chart for each platform
+    # Line chart for each platform (overlayed on top of bars)
     for platform in platforms:
         if platform in visible_data.columns:
             ax1.plot(
                 visible_data.index,
-                visible_data[platform],
+                visible_data[platform].cumsum(),  # Display cumulative data for trend
                 marker='o',
                 linestyle='-',
                 label=f"{platform} (Đường)",
