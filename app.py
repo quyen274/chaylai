@@ -18,7 +18,7 @@ st.write("Biểu đồ kết hợp: cột chồng và đường hiển thị doa
 # Sidebar for user selections
 selected_platforms = st.sidebar.multiselect("Chọn nền tảng:", platforms, default=platforms)
 selected_products = st.sidebar.multiselect("Chọn loại sản phẩm:", products, default=products)
-zoom_level = st.sidebar.slider("Chọn số lượng cột hiển thị:", 5, 50, 10)
+zoom_level = st.sidebar.slider("Chọn số lượng cột hiển thị:", 5, 50, 10, key='zoom_level')
 
 # Filter data based on user selection
 def filter_data(data, platforms, products):
@@ -81,7 +81,7 @@ while True:
         value=start_index,
         step=1,
         format="%d",
-        key='scroll'
+        key=f'scroll_{int(time.time())}'  # Ensure unique key by appending timestamp
     )
 
     # Set the visible range based on the slider position
