@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import time
 
 # Load the existing dataset
-current_day_sales = pd.read_csv('current_day_sales.csv')
+current_day_sales = pd.read_csv('current_day_sales_7days.csv')
 current_day_sales['Time'] = pd.to_datetime(current_day_sales['Time'])
 
 platforms = current_day_sales['Platform'].unique()
