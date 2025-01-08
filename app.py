@@ -60,8 +60,9 @@ chart_placeholder = st.empty()
 data = current_day_sales.copy()
 start_index = 0
 
-# Track the maximum scrollable range
-max_scroll_position = 0
+# Initialize scroll position globally
+if 'scroll_position' not in st.session_state:
+    st.session_state['scroll_position'] = 0
 
 while True:
     # Filter data based on user selections
@@ -73,19 +74,19 @@ while True:
     # Update maximum scroll position dynamically
     max_scroll_position = max(len(pivot_data) - zoom_level, 0)
 
-    # Add horizontal slider for viewing old data
-    scroll_position = st.slider(
+    # Add horizontal slider for viewing old data (persistent slider)
+    st.session_state['scroll_position'] = st.slider(
         "Lướt lại dữ liệu cũ:",
         min_value=0,
         max_value=max_scroll_position,
-        value=start_index,
+        value=st.session_state['scroll_position'],
         step=1,
         format="%d",
-        key=f'scroll_{int(time.time())}'  # Ensure unique key by appending timestamp
+        key='persistent_scroll'
     )
 
     # Set the visible range based on the slider position
-    visible_data = pivot_data.iloc[scroll_position:scroll_position + zoom_level]
+    visible_data = pivot_data.iloc[st.session_state['scroll_position']:st.session_state['scroll_position'] + zoom_level]
 
     # Plot combined chart
     fig, ax = plt.subplots(figsize=(12, 6))
