@@ -18,9 +18,9 @@ current_day_sales = pd.DataFrame({
 
 # Streamlit setup
 st.title('Báo Cáo Tự Động Về Doanh Số')
-st.write("Mô phỏng dữ liệu liên tục với biểu đồ cột chồng và đường, cùng thanh trượt để xem dữ liệu cũ.")
+st.write("Biểu đồ liên tục cập nhật với dữ liệu mới, cùng thanh trượt để xem dữ liệu cũ.")
 
-# Sidebar for zooming and scrolling options
+# Sidebar for zooming options
 zoom_level = st.sidebar.slider("Chọn số lượng cột hiển thị:", 5, 50, 10)
 
 # Function to simulate live data updates
@@ -43,10 +43,11 @@ def prepare_data(data):
     )
     return pivot_data
 
-# Initialize chart update
+# Initialize data and start scrolling
 start_index = 0
-
 data = current_day_sales.copy()
+
+# Main loop for live updates
 while True:
     # Simulate live data
     data = simulate_live_data(data)
@@ -85,7 +86,7 @@ while True:
     ax1.legend(loc="upper left")
 
     # Display the chart
-    st.pyplot(fig)
+    st.pyplot(fig, clear_figure=True)
 
     # Pause for real-time simulation
     time.sleep(5)
