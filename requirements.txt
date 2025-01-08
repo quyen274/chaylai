@@ -9,3 +9,4 @@ snscrape
 streamlit-option-menu
 selenium
 playwright
+time
