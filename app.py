@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import json
 
 # Load dữ liệu
 df = pd.read_csv('current_day_sales.csv')
@@ -32,12 +31,14 @@ html_code = f"""
         const labels = data.map(row => row.Time);
         const datasets = Object.keys(data[0])
             .filter(key => key !== 'Time')
-            .map(platform => ({
-                label: platform,
-                data: data.map(row => row[platform] || 0),
-                borderColor: '#' + Math.floor(Math.random()*16777215).toString(16),
-                fill: false
-            }));
+            .map(platform => {{
+                return {{
+                    label: platform,
+                    data: data.map(row => row[platform] || 0),
+                    borderColor: '#' + Math.floor(Math.random()*16777215).toString(16),
+                    fill: false
+                }};
+            }});
 
         const config = {{
             type: 'line',
