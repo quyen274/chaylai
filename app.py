@@ -15,9 +15,11 @@ products = current_day_sales['Product'].unique()
 st.title('Báo Cáo Tự Động Về Doanh Số')
 st.write("Biểu đồ kết hợp: cột chồng và đường hiển thị doanh số theo thời gian.")
 
-# Initialize session state for zoom level
+# Initialize session state for zoom level and scroll position
 if 'zoom_level' not in st.session_state:
     st.session_state['zoom_level'] = 10  # Default zoom level
+if 'scroll_position' not in st.session_state:
+    st.session_state['scroll_position'] = 0
 
 # Sidebar for user selections
 selected_platforms = st.sidebar.multiselect("Chọn nền tảng:", platforms, default=platforms)
@@ -68,7 +70,6 @@ chart_placeholder = st.empty()
 
 # Simulate data in real-time
 data = current_day_sales.copy()
-start_index = 0
 
 while True:
     # Filter data based on user selections
@@ -77,11 +78,16 @@ while True:
     # Prepare data for chart
     pivot_data = prepare_data(filtered_data)
 
-    # Scroll logic for zoom level
-    zoom_level = st.session_state['zoom_level']
-    if len(pivot_data) > zoom_level:
-        start_index = len(pivot_data) - zoom_level
-    visible_data = pivot_data.iloc[start_index:]
+    # Scroll logic for zoom level and scroll position
+    max_scroll_position = max(len(pivot_data) - st.session_state['zoom_level'], 0)
+    st.session_state['scroll_position'] = st.sidebar.slider(
+        "Vị trí hiển thị:",
+        min_value=0,
+        max_value=max_scroll_position,
+        value=st.session_state['scroll_position'],
+        step=1
+    )
+    visible_data = pivot_data.iloc[st.session_state['scroll_position']:st.session_state['scroll_position'] + st.session_state['zoom_level']]
 
     # Plot combined chart
     fig, ax = plt.subplots(figsize=(12, 6))
