@@ -15,10 +15,20 @@ products = current_day_sales['Product'].unique()
 st.title('Báo Cáo Tự Động Về Doanh Số')
 st.write("Biểu đồ kết hợp: cột chồng và đường hiển thị doanh số theo thời gian.")
 
+# Initialize session state for zoom level
+if 'zoom_level' not in st.session_state:
+    st.session_state['zoom_level'] = 10  # Default zoom level
+
 # Sidebar for user selections
 selected_platforms = st.sidebar.multiselect("Chọn nền tảng:", platforms, default=platforms)
 selected_products = st.sidebar.multiselect("Chọn loại sản phẩm:", products, default=products)
-zoom_level = st.sidebar.slider("Chọn số lượng cột hiển thị:", 10, 200, 50, key='zoom_level')
+st.session_state['zoom_level'] = st.sidebar.slider(
+    "Chọn số lượng cột hiển thị:",
+    min_value=10,
+    max_value=50,
+    value=st.session_state['zoom_level'],
+    step=1
+)
 
 # Filter data based on user selection
 def filter_data(data, platforms, products):
@@ -53,43 +63,25 @@ def simulate_new_data(data):
 # Adjust the dataset time
 current_day_sales = adjust_time(current_day_sales)
 
-# Initialize session state for data and scroll position
-if 'data' not in st.session_state:
-    st.session_state['data'] = current_day_sales.copy()
-if 'scroll_position' not in st.session_state:
-    st.session_state['scroll_position'] = 0
-
 # Placeholder for the chart
 chart_placeholder = st.empty()
 
-while True:
-    # Update data with simulated new rows
-    st.session_state['data'] = simulate_new_data(st.session_state['data'])
+# Simulate data in real-time
+data = current_day_sales.copy()
+start_index = 0
 
+while True:
     # Filter data based on user selections
-    filtered_data = filter_data(st.session_state['data'], selected_platforms, selected_products)
+    filtered_data = filter_data(data, selected_platforms, selected_products)
 
     # Prepare data for chart
     pivot_data = prepare_data(filtered_data)
 
-    # Update maximum scroll position dynamically
-    max_scroll_position = max(len(pivot_data) - zoom_level, 0)
-
-    # Display horizontal slider for viewing old data (persistent slider)
-    scroll_position = st.slider(
-        "Lướt lại dữ liệu cũ:",
-        min_value=0,
-        max_value=max_scroll_position,
-        value=st.session_state['scroll_position'],
-        step=1,
-        key='scroll_slider'
-    )
-
-    # Update the scroll position in session state
-    st.session_state['scroll_position'] = scroll_position
-
-    # Set the visible range based on the slider position
-    visible_data = pivot_data.iloc[scroll_position:scroll_position + zoom_level]
+    # Scroll logic for zoom level
+    zoom_level = st.session_state['zoom_level']
+    if len(pivot_data) > zoom_level:
+        start_index = len(pivot_data) - zoom_level
+    visible_data = pivot_data.iloc[start_index:]
 
     # Plot combined chart
     fig, ax = plt.subplots(figsize=(12, 6))
@@ -126,4 +118,8 @@ while True:
     # Update the chart in the placeholder
     chart_placeholder.pyplot(fig, clear_figure=True)
 
+    # Simulate new data
+    data = simulate_new_data(data)
+
     # Pause for real-time simulation
+    time.sleep(5)
