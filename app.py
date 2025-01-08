@@ -17,7 +17,7 @@ current_day_sales = pd.DataFrame({
 
 # Streamlit setup
 st.title('Báo Cáo Tự Động Về Doanh Số')
-st.write("Mô phỏng dữ liệu với khả năng phóng to và cuộn thanh kéo.")
+st.write("Mô phỏng dữ liệu kết hợp biểu đồ cột và đường trên cùng một biểu đồ.")
 
 # Sidebar for filtering options
 platform_filter = st.sidebar.multiselect("Chọn sàn TMĐT:", platforms, default=platforms)
@@ -34,29 +34,25 @@ filtered_data = current_day_sales[(current_day_sales['Platform'].isin(platform_f
 # Apply scrolling and zooming logic
 display_data = filtered_data.iloc[data_window:data_window + zoom_level]
 
-# Prepare data for stacked column chart
+# Prepare data for combined chart
 pivot_data = display_data.pivot_table(
     index='Time', columns='Platform', values='Sales (15 min)', aggfunc='sum', fill_value=0
 )
+total_sales = pivot_data.sum(axis=1)
 
 # Plot the data
-fig, ax1 = plt.subplots(figsize=(12, 6))
+fig, ax = plt.subplots(figsize=(12, 6))
 
-# Stacked column chart
-pivot_data.plot(kind='bar', stacked=True, ax=ax1, color=['#1f77b4', '#ff7f0e', '#2ca02c'])
-ax1.set_ylabel("Doanh Số (15 phút)")
-ax1.set_xlabel("Thời Gian")
-ax1.set_title("Biểu Đồ Kết Hợp: Doanh Số Theo Thời Gian")
-ax1.tick_params(axis='x', rotation=45)
+# Combined bar and line chart
+pivot_data.plot(kind='bar', stacked=True, ax=ax, color=['#1f77b4', '#ff7f0e', '#2ca02c'], alpha=0.8)
+ax.plot(total_sales.index, total_sales.values, color='red', marker='o', linewidth=2, label='Tổng Doanh Số')
 
-# Line chart for each platform on top of the bars
-colors = ['#d62728', '#9467bd', '#8c564b']  # Different colors for lines
-for i, platform in enumerate(platforms):
-    if platform in pivot_data.columns:
-        ax1.plot(pivot_data.index, pivot_data[platform], marker='o', label=f"{platform}", linestyle='-', color=colors[i], linewidth=2)
-
-# Add legend
-ax1.legend(loc="upper left", bbox_to_anchor=(1.05, 1))
+# Customize labels and title
+ax.set_ylabel("Doanh Số (15 phút)")
+ax.set_xlabel("Thời Gian")
+ax.set_title("Biểu Đồ Kết Hợp: Doanh Số Theo Thời Gian")
+ax.tick_params(axis='x', rotation=45)
+ax.legend(loc="upper left")
 
 # Display the chart
 st.pyplot(fig)
