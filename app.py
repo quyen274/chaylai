@@ -2,6 +2,11 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import RendererAgg
+import time
+
+# Required for Streamlit to work with Matplotlib
+_lock = RendererAgg.lock
 
 # Initialize the fake dataset for simulation
 platforms = ['Shopee', 'TikTok', 'Lazada']
@@ -17,42 +22,75 @@ current_day_sales = pd.DataFrame({
 
 # Streamlit setup
 st.title('Báo Cáo Tự Động Về Doanh Số')
-st.write("Mô phỏng dữ liệu kết hợp biểu đồ cột và đường trên cùng một biểu đồ.")
-
-# Sidebar for filtering options
-platform_filter = st.sidebar.multiselect("Chọn sàn TMĐT:", platforms, default=platforms)
-product_filter = st.sidebar.multiselect("Chọn sản phẩm:", products, default=products)
+st.write("Mô phỏng dữ liệu liên tục với biểu đồ cột chồng và đường, cùng thanh trượt để xem dữ liệu cũ.")
 
 # Sidebar for zooming and scrolling options
-zoom_level = st.sidebar.slider("Chọn độ rộng hiển thị (số lượng cột):", 5, 50, 10)
-data_window = st.sidebar.slider("Chọn vị trí thanh kéo:", 0, len(current_day_sales) - zoom_level, 0)
+zoom_level = st.sidebar.slider("Chọn số lượng cột hiển thị:", 5, 50, 10)
 
-# Filter data based on user selection
-filtered_data = current_day_sales[(current_day_sales['Platform'].isin(platform_filter)) &
-                                  (current_day_sales['Product'].isin(product_filter))]
+# Function to simulate live data updates
+def simulate_live_data(data):
+    """
+    Simulates live data updates by adding random sales data.
+    """
+    latest_time = data['Time'].max() + pd.Timedelta(minutes=15)
+    new_data = []
+    for platform in platforms:
+        sales_15_min = np.random.randint(1, 20)
+        new_data.append({'Time': latest_time, 'Platform': platform, 'Sales (15 min)': sales_15_min})
+    new_df = pd.DataFrame(new_data)
+    return pd.concat([data, new_df], ignore_index=True)
 
-# Apply scrolling and zooming logic
-display_data = filtered_data.iloc[data_window:data_window + zoom_level]
+# Prepare data for visualization
+def prepare_data(data):
+    pivot_data = data.pivot_table(
+        index='Time', columns='Platform', values='Sales (15 min)', aggfunc='sum', fill_value=0
+    )
+    return pivot_data
 
-# Prepare data for combined chart
-pivot_data = display_data.pivot_table(
-    index='Time', columns='Platform', values='Sales (15 min)', aggfunc='sum', fill_value=0
-)
-total_sales = pivot_data.sum(axis=1)
+# Initialize chart update
+start_index = 0
 
-# Plot the data
-fig, ax = plt.subplots(figsize=(12, 6))
+data = current_day_sales.copy()
+while True:
+    # Simulate live data
+    data = simulate_live_data(data)
 
-# Combined bar and line chart
-pivot_data.plot(kind='bar', stacked=True, ax=ax, color=['#1f77b4', '#ff7f0e', '#2ca02c'], alpha=0.8)
-ax.plot(total_sales.index, total_sales.values, color='red', marker='o', linewidth=2, label='Tổng Doanh Số')
+    # Prepare data for chart
+    pivot_data = prepare_data(data)
 
-# Customize labels and title
-ax.set_ylabel("Doanh Số (15 phút)")
-ax.set_xlabel("Thời Gian")
-ax.set_title("Biểu Đồ Kết Hợp: Doanh Số Theo Thời Gian")
-ax.tick_params(axis='x', rotation=45)
-ax.legend(loc="upper left")
+    # Scroll logic for zoom level
+    if len(pivot_data) > zoom_level:
+        start_index = len(pivot_data) - zoom_level
+    visible_data = pivot_data.iloc[start_index:]
 
-# Display the chart
-st.pyplot(fig)
+    # Plot combined chart
+    with _lock:
+        fig, ax1 = plt.subplots(figsize=(12, 6))
+
+        # Stacked column chart
+        visible_data.plot(kind='bar', stacked=True, ax=ax1, alpha=0.8, width=0.8)
+        ax1.set_ylabel("Doanh Số (15 phút)")
+        ax1.set_xlabel("Thời Gian")
+        ax1.set_title("Biểu Đồ Kết Hợp: Doanh Số Theo Thời Gian")
+        ax1.tick_params(axis='x', rotation=45)
+
+        # Line chart for each platform
+        for platform in platforms:
+            if platform in visible_data.columns:
+                ax1.plot(
+                    visible_data.index,
+                    visible_data[platform],
+                    marker='o',
+                    linestyle='-',
+                    label=f"{platform} (Đường)",
+                    linewidth=2
+                )
+
+        # Add legend
+        ax1.legend(loc="upper left")
+
+        # Display the chart
+        st.pyplot(fig)
+
+    # Pause for real-time simulation
+    time.sleep(5)
