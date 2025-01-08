@@ -68,22 +68,27 @@ while True:
 
     # Stacked column chart
     bar_width = 0.8
+    bar_positions = np.arange(len(visible_data))
     visible_data.plot(kind='bar', stacked=True, ax=ax, alpha=0.8, width=bar_width, color=['#1f77b4', '#ff7f0e', '#2ca02c'])
     ax.set_ylabel("Doanh Số (15 phút)")
     ax.set_xlabel("Thời Gian")
     ax.set_title("Biểu Đồ Kết Hợp: Doanh Số Theo Thời Gian")
     ax.tick_params(axis='x', rotation=45)
+    ax.set_xticks(bar_positions)
+    ax.set_xticklabels(visible_data.index.strftime('%H:%M'))
 
     # Line chart based on the top of stacked bars
-    for platform in platforms:
-        if platform in visible_data.columns:
-            cumulative = visible_data.cumsum(axis=1)[platform]  # Get the top position of each bar
+    cumulative_data = visible_data.cumsum(axis=1)
+    for i, platform in enumerate(platforms):
+        if platform in cumulative_data.columns:
+            platform_values = cumulative_data[platform].values
             ax.plot(
-                visible_data.index,
-                cumulative,
+                bar_positions,  # Match bar positions for x-axis
+                platform_values,  # Top of the stacked bar
                 marker='o',
                 linestyle='-',
                 label=f"{platform} (Đường)",
+                color=['#d62728', '#9467bd', '#8c564b'][i],
                 linewidth=2
             )
 
