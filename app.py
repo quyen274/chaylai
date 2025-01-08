@@ -88,4 +88,4 @@ while True:
     st.pyplot(fig)
 
     # Pause for real-time simulation
-    time.sleep(5)s
+    time.sleep(5)
