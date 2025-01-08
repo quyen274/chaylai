@@ -60,6 +60,9 @@ chart_placeholder = st.empty()
 data = current_day_sales.copy()
 start_index = 0
 
+# Track the maximum scrollable range
+max_scroll_position = 0
+
 while True:
     # Filter data based on user selections
     filtered_data = filter_data(data, selected_platforms, selected_products)
@@ -67,9 +70,11 @@ while True:
     # Prepare data for chart
     pivot_data = prepare_data(filtered_data)
 
-    # Scroll logic for zoom level
+    # Update maximum scroll position dynamically
     max_scroll_position = max(len(pivot_data) - zoom_level, 0)
-    start_index = st.slider(
+
+    # Add horizontal slider for viewing old data
+    scroll_position = st.slider(
         "Lướt lại dữ liệu cũ:",
         min_value=0,
         max_value=max_scroll_position,
@@ -78,7 +83,9 @@ while True:
         format="%d",
         key='scroll'
     )
-    visible_data = pivot_data.iloc[start_index:start_index + zoom_level]
+
+    # Set the visible range based on the slider position
+    visible_data = pivot_data.iloc[scroll_position:scroll_position + zoom_level]
 
     # Plot combined chart
     fig, ax = plt.subplots(figsize=(12, 6))
@@ -115,7 +122,7 @@ while True:
     # Update the chart in the placeholder
     chart_placeholder.pyplot(fig, clear_figure=True)
 
-    # Simulate new data
+    # Simulate new data without affecting the slider
     data = simulate_new_data(data)
 
     # Pause for real-time simulation
