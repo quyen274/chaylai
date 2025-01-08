@@ -4,62 +4,64 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 
-# Load the provided datasets
-daily_sales = pd.read_csv('daily_sales.csv')
-current_day_sales = pd.read_csv('current_day_sales.csv')
+# Initialize the fake dataset for simulation
+platforms = ['Shopee', 'TikTok', 'Lazada']
+products = ['Búp bê Barbie', 'Labubu', 'Capybara', 'Gấu bông']
 
-# Convert 'Date' and 'Time' columns to datetime
-daily_sales['Date'] = pd.to_datetime(daily_sales['Date'])
-current_day_sales['Time'] = pd.to_datetime(current_day_sales['Time'])
+# Create an initial dataframe
+current_day_sales = pd.DataFrame({
+    'Time': pd.date_range(start=pd.Timestamp.now(), periods=4, freq='15T'),
+    'Platform': np.random.choice(platforms, size=4),
+    'Product': np.random.choice(products, size=4),
+    'Sales (15 min)': np.random.randint(1, 20, size=4)
+})
 
 # Function to simulate live data updates
-def simulate_live_data():
+def simulate_live_data(data):
     """
     Simulates live data updates by adding random sales data.
     """
-    latest_time = current_day_sales['Time'].max() + pd.Timedelta(minutes=15)
+    latest_time = data['Time'].max() + pd.Timedelta(minutes=15)
     new_data = []
-    for platform in ['Shopee', 'TikTok', 'Lazada']:
-        for product in ['Búp bê Barbie', 'Labubu', 'Capybara', 'Gấu bông']:
+    for platform in platforms:
+        for product in products:
             sales_15_min = np.random.randint(1, 20)
             new_data.append({'Time': latest_time, 'Platform': platform, 'Product': product, 'Sales (15 min)': sales_15_min})
     new_df = pd.DataFrame(new_data)
-    return pd.concat([current_day_sales, new_df], ignore_index=True)
+    return pd.concat([data, new_df], ignore_index=True)
 
 # Streamlit setup
 st.title('Báo Cáo Tự Động Về Doanh Số')
 st.write("Mô phỏng dữ liệu cập nhật mỗi 5 giây (tương ứng 15 phút thực tế).")
 
 # Sidebar for filtering options
-platform_filter = st.sidebar.multiselect("Chọn sàn TMĐT:", ['Shopee', 'TikTok', 'Lazada'], default=['Shopee', 'TikTok', 'Lazada'])
-product_filter = st.sidebar.multiselect("Chọn sản phẩm:", ['Búp bê Barbie', 'Labubu', 'Capybara', 'Gấu bông'], default=['Búp bê Barbie', 'Labubu'])
-
-# Filter data based on user selection
-filtered_data = current_day_sales[current_day_sales['Platform'].isin(platform_filter) &
-                                  current_day_sales['Product'].isin(product_filter)]
+platform_filter = st.sidebar.multiselect("Chọn sàn TMĐT:", platforms, default=platforms)
+product_filter = st.sidebar.multiselect("Chọn sản phẩm:", products, default=products)
 
 # Initialize the plot area
 chart_placeholder = st.empty()
 
 # Simulate live updates
-data = filtered_data.copy()
+data = current_day_sales.copy()
 for _ in range(20):
     # Update the data
-    data = simulate_live_data()
+    data = simulate_live_data(data)
 
     # Filter updated data
-    filtered_data = data[data['Platform'].isin(platform_filter) &
-                         data['Product'].isin(product_filter)]
+    filtered_data = data[(data['Platform'].isin(platform_filter)) &
+                         (data['Product'].isin(product_filter))]
 
-    # Line chart for sales trend
+    # Stacked column chart for sales
+    pivot_data = filtered_data.pivot_table(
+        index='Time', columns='Platform', values='Sales (15 min)', aggfunc='sum', fill_value=0
+    )
+
+    # Plot the data
     fig, ax = plt.subplots(figsize=(10, 6))
-    for product in product_filter:
-        product_data = filtered_data[filtered_data['Product'] == product]
-        ax.plot(product_data['Time'], product_data['Sales (15 min)'], label=product)
-    ax.set_title("Xu Hướng Doanh Số Theo Thời Gian")
+    pivot_data.plot(kind='bar', stacked=True, ax=ax)
+    ax.set_title("Biểu Đồ Cột Chồng: Doanh Số Theo Thời Gian")
     ax.set_xlabel("Thời Gian")
     ax.set_ylabel("Doanh Số (15 phút)")
-    ax.legend()
     plt.xticks(rotation=45)
 
     # Display chart
