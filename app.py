@@ -1,4 +1,4 @@
-import streamlit as st
+mport streamlit as st
 import pandas as pd
 import numpy as np
 import time
@@ -57,7 +57,7 @@ for _ in range(20):
     )
 
     # Plot the data
-    fig, ax1 = plt.subplots(figsize=(10, 6))
+    fig, ax1 = plt.subplots(figsize=(12, 6))
 
     # Stacked column chart
     pivot_data.plot(kind='bar', stacked=True, ax=ax1, color=['#1f77b4', '#ff7f0e', '#2ca02c'])
@@ -71,9 +71,12 @@ for _ in range(20):
     colors = ['#d62728', '#9467bd', '#8c564b']  # Different colors for lines
     for i, platform in enumerate(platforms):
         if platform in pivot_data.columns:
-            ax2.plot(pivot_data.index, pivot_data[platform], marker='o', label=f"{platform}", linestyle='-', color=colors[i])
+            ax2.plot(pivot_data.index, pivot_data[platform], marker='o', label=f"{platform}", linestyle='-', color=colors[i], linewidth=2)
     ax2.set_ylabel("Tổng Doanh Số")
-    ax2.legend(loc="upper left")
+    ax2.legend(loc="upper left", bbox_to_anchor=(1.05, 1))
+
+    # Ensure line chart is visible
+    ax2.set_ylim(0, max(pivot_data.sum(axis=1)) * 1.2)
 
     # Display chart
     chart_placeholder.pyplot(fig)
