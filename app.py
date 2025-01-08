@@ -68,9 +68,10 @@ for _ in range(20):
 
     # Line chart for each platform
     ax2 = ax1.twinx()
-    for platform in platforms:
+    colors = ['#d62728', '#9467bd', '#8c564b']  # Different colors for lines
+    for i, platform in enumerate(platforms):
         if platform in pivot_data.columns:
-            ax2.plot(pivot_data.index, pivot_data[platform], marker='o', label=f"{platform}", linestyle='-')
+            ax2.plot(pivot_data.index, pivot_data[platform], marker='o', label=f"{platform}", linestyle='-', color=colors[i])
     ax2.set_ylabel("Tổng Doanh Số")
     ax2.legend(loc="upper left")
 
