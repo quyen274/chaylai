@@ -64,36 +64,31 @@ while True:
     visible_data = pivot_data.iloc[start_index:]
 
     # Plot combined chart
-    fig, ax1 = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=(12, 6))
 
     # Stacked column chart
     bar_width = 0.8
-    visible_data.plot(kind='bar', stacked=True, ax=ax1, alpha=0.8, width=bar_width, color=['#1f77b4', '#ff7f0e', '#2ca02c'])
-    ax1.set_ylabel("Doanh Số (15 phút)")
-    ax1.set_xlabel("Thời Gian")
-    ax1.set_title("Biểu Đồ Kết Hợp: Doanh Số Theo Thời Gian")
-    ax1.tick_params(axis='x', rotation=45)
+    visible_data.plot(kind='bar', stacked=True, ax=ax, alpha=0.8, width=bar_width, color=['#1f77b4', '#ff7f0e', '#2ca02c'])
+    ax.set_ylabel("Doanh Số (15 phút)")
+    ax.set_xlabel("Thời Gian")
+    ax.set_title("Biểu Đồ Kết Hợp: Doanh Số Theo Thời Gian")
+    ax.tick_params(axis='x', rotation=45)
 
-    # Line chart for each platform (overlayed on top of bars)
-    ax2 = ax1.twinx()
-    colors = ['#d62728', '#9467bd', '#8c564b']  # Colors for line chart
-    for i, platform in enumerate(platforms):
+    # Line chart based on the top of stacked bars
+    for platform in platforms:
         if platform in visible_data.columns:
-            ax2.plot(
+            cumulative = visible_data.cumsum(axis=1)[platform]  # Get the top position of each bar
+            ax.plot(
                 visible_data.index,
-                visible_data[platform],
+                cumulative,
                 marker='o',
                 linestyle='-',
                 label=f"{platform} (Đường)",
-                color=colors[i],
                 linewidth=2
             )
-    ax2.set_ylabel("Xu Hướng Doanh Số")
 
-    # Combine legends
-    handles1, labels1 = ax1.get_legend_handles_labels()
-    handles2, labels2 = ax2.get_legend_handles_labels()
-    ax1.legend(handles1 + handles2, labels1 + labels2, loc="upper left")
+    # Add legend
+    ax.legend(loc="upper left")
 
     # Update the chart in the placeholder
     chart_placeholder.pyplot(fig, clear_figure=True)
