@@ -4,17 +4,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
-# Initialize the fake dataset for simulation
-platforms = ['Shopee', 'TikTok', 'Lazada']
-products = ['Búp bê Barbie', 'Labubu', 'Capybara', 'Gấu bông']
+# Load the existing dataset
+current_day_sales = pd.read_csv('current_day_sales.csv')
+current_day_sales['Time'] = pd.to_datetime(current_day_sales['Time'])
 
-# Create an initial dataframe
-current_day_sales = pd.DataFrame({
-    'Time': pd.date_range(start=pd.Timestamp.now(), periods=10, freq='15T'),
-    'Platform': np.random.choice(platforms, size=10),
-    'Product': np.random.choice(products, size=10),
-    'Sales (15 min)': np.random.randint(1, 20, size=10)
-})
+platforms = current_day_sales['Platform'].unique()
 
 # Streamlit setup
 st.title('Báo Cáo Tự Động Về Doanh Số')
@@ -23,19 +17,6 @@ st.write("Biểu đồ kết hợp: cột chồng và đường hiển thị doa
 # Sidebar for zooming options
 zoom_level = st.sidebar.slider("Chọn số lượng cột hiển thị:", 5, 50, 10)
 
-# Function to simulate live data updates
-def simulate_live_data(data):
-    """
-    Simulates live data updates by adding random sales data.
-    """
-    latest_time = data['Time'].max() + pd.Timedelta(minutes=15)
-    new_data = []
-    for platform in platforms:
-        sales_15_min = np.random.randint(1, 20)
-        new_data.append({'Time': latest_time, 'Platform': platform, 'Sales (15 min)': sales_15_min})
-    new_df = pd.DataFrame(new_data)
-    return pd.concat([data, new_df], ignore_index=True)
-
 # Prepare data for visualization
 def prepare_data(data):
     pivot_data = data.pivot_table(
@@ -43,18 +24,25 @@ def prepare_data(data):
     )
     return pivot_data
 
-# Initialize data and start scrolling
-start_index = 0
-data = current_day_sales.copy()
+# Adjust time for the current run (simulate live updates)
+def adjust_time(data):
+    min_time = data['Time'].min()
+    current_time = pd.Timestamp.now().replace(second=0, microsecond=0)
+    time_diff = current_time - min_time
+    data['Time'] = data['Time'] + time_diff
+    return data
+
+# Adjust the dataset time
+current_day_sales = adjust_time(current_day_sales)
 
 # Placeholder for the chart
 chart_placeholder = st.empty()
 
-# Main loop for live updates
-while True:
-    # Simulate live data
-    data = simulate_live_data(data)
+# Simulate data in real-time
+data = current_day_sales.copy()
+start_index = 0
 
+while True:
     # Prepare data for chart
     pivot_data = prepare_data(data)
 
