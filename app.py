@@ -58,24 +58,24 @@ if page == "Phân Tích Sản Phẩm":
     platforms = cart_data['Platform'].unique()
     
     for platform in platforms:
-    platform_cart = cart_data[cart_data['Platform'] == platform]
-    items_in_cart = platform_cart.groupby('Product')['Items in Cart'].sum().reset_index()
-
-    # Tạo biểu đồ tròn cho từng nền tảng
-    fig_pie = px.pie(
-        items_in_cart,
-        names='Product',
-        values='Items in Cart',
-        title=f'Cart Distribution on {platform}',
-        color_discrete_sequence=px.colors.qualitative.Pastel,
-    )
-
-    fig_pie.update_traces(textinfo='percent+label')  # Hiển thị phần trăm và nhãn
-    fig_pie.update_layout(
-        title=dict(x=0.5),  # Canh giữa tiêu đề
-        margin=dict(l=20, r=20, t=50, b=20),  # Lề gọn
-        height=400,  # Chiều cao biểu đồ
-    )
+        platform_cart = cart_data[cart_data['Platform'] == platform]
+        items_in_cart = platform_cart.groupby('Product')['Items in Cart'].sum().reset_index()
+    
+        # Tạo biểu đồ tròn cho từng nền tảng
+        fig_pie = px.pie(
+            items_in_cart,
+            names='Product',
+            values='Items in Cart',
+            title=f'Cart Distribution on {platform}',
+            color_discrete_sequence=px.colors.qualitative.Pastel,
+        )
+    
+        fig_pie.update_traces(textinfo='percent+label')  # Hiển thị phần trăm và nhãn
+        fig_pie.update_layout(
+            title=dict(x=0.5),  # Canh giữa tiêu đề
+            margin=dict(l=20, r=20, t=50, b=20),  # Lề gọn
+            height=400,  # Chiều cao biểu đồ
+        )
 
     # Hiển thị biểu đồ tròn
     st.plotly_chart(fig_pie, use_container_width=True)
