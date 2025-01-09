@@ -83,61 +83,65 @@ if page == "Phân Tích Sản Phẩm":
         with col:
             st.plotly_chart(fig, use_container_width=False)
          # Biểu đồ cột và đường: Tổng số lượng bán ra theo sản phẩm trong 30 ngày gần nhất tách theo sàn
-    daily_sales_last_30 = daily_sales[daily_sales['Date'] >= (daily_sales['Date'].max() - pd.Timedelta(days=30))]
+    selected_platform = st.sidebar.selectbox("Chọn nền tảng", platforms)
+
+    # Filter data based on selected platform
+    platform_data = daily_sales[daily_sales['Platform'] == selected_platform]
     
-    # Group data by 3-day intervals
-    def group_by_three_days(df):
-        df['3DayGroup'] = (df['Date'].dt.day - 1) // 3  # Group days into intervals of 3
-        return df.groupby(['Platform', 'Product', '3DayGroup']).agg({
-            'Daily Sales': 'sum',
-            'Date': 'first'  # Keep the first date of the group for labeling
-        }).reset_index()
+    # Filter data for the last 30 days
+    last_30_days = platform_data[platform_data['Date'] >= platform_data['Date'].max() - pd.Timedelta(days=30)]
     
-    grouped_sales = group_by_three_days(daily_sales_last_30)
+    # Group data by product and date
+    grouped_data = last_30_days.groupby(['Product', 'Date'])['Daily Sales'].sum().reset_index()
     
-    # Display charts for each platform
-    for platform in platforms:
-        st.subheader(f"{platform}")
-        platform_data = grouped_sales[grouped_sales['Platform'] == platform]
+    # Generate plots for each product
+    cols = st.columns(len(products))  # Adjust layout for each product
     
-        # Create 4 columns for products
-        cols = st.columns(4)
+    for i, product in enumerate(products):
+        product_data = grouped_data[grouped_data['Product'] == product]
     
-        for i, product in enumerate(products):
-            product_data = platform_data[platform_data['Product'] == product]
+        if product_data.empty:
+            with cols[i % len(cols)]:
+                st.warning(f"Không có dữ liệu cho sản phẩm {product}")
+            continue
     
-            if not product_data.empty:
-                fig = go.Figure()
+        # Calculate rolling sales (3-day sum)
+        product_data['Rolling Sales'] = product_data['Daily Sales'].rolling(window=3).sum()
     
-                # Bar chart for total sales per 3-day interval
-                fig.add_trace(go.Bar(
-                    x=product_data['Date'],
-                    y=product_data['Daily Sales'],
-                    name='3-Day Total Sales',
-                    marker_color='Green'
-                ))
+        # Create plot
+        fig = go.Figure()
     
-                # Line chart for daily sales in the same interval
-                fig.add_trace(go.Scatter(
-                    x=product_data['Date'],
-                    y=product_data['Daily Sales'],
-                    mode='lines+markers',
-                    name='Daily Sales',
-                    line=dict(color='red')
-                ))
+        # Add bar chart for daily sales
+        fig.add_trace(go.Bar(
+            x=product_data['Date'],
+            y=product_data['Daily Sales'],
+            name='Daily Sales',
+            marker_color='blue'
+        ))
     
-                fig.update_layout(
-                    title=f"Sales for {product} (Last 30 Days)",
-                    xaxis_title="Date",
-                    yaxis_title="Sales",
-                    legend_title="Legend",
-                    xaxis=dict(tickangle=45),
-                    margin=dict(l=20, r=20, t=30, b=20),
-                    height=300
-                )
+        # Add line chart for rolling sales
+        fig.add_trace(go.Scatter(
+            x=product_data['Date'],
+            y=product_data['Rolling Sales'],
+            mode='lines+markers',
+            name='3-Day Rolling Sales',
+            line=dict(color='red', width=2)
+        ))
     
-                # Display in the corresponding column
-                cols[i % 4].plotly_chart(fig, use_container_width=True)
+        # Update layout
+        fig.update_layout(
+            title=f"Sales for {product} (Last 30 Days - {selected_platform})",
+            xaxis_title="Date",
+            yaxis_title="Sales",
+            xaxis=dict(tickformat="%b %d"),
+            height=400,
+            margin=dict(l=20, r=20, t=50, b=20),
+            legend=dict(x=0.5, y=1.1, orientation="h", xanchor="center")
+        )
+    
+        # Display plot
+        with cols[i % len(cols)]:
+            st.plotly_chart(fig, use_container_width=True)
             
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
