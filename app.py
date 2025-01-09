@@ -56,6 +56,7 @@ if page == "Phân Tích Sản Phẩm":
 
     # 2. Pie Chart: Sản phẩm trong giỏ hàng
     platforms = cart_data['Platform'].unique()
+    
     for platform in platforms:
     platform_cart = cart_data[cart_data['Platform'] == platform]
     items_in_cart = platform_cart.groupby('Product')['Items in Cart'].sum().reset_index()
