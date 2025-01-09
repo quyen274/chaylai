@@ -43,7 +43,7 @@ sales_by_product = {product: 100 / len(products) for product in products}
 
 # Placeholder for KPI and Pie charts
 kpi_placeholder = st.empty()
-pie_placeholder = st.columns(2)
+chart_placeholders = st.columns(2)
 chart_placeholder = st.empty()
 
 # Initialize previous values for percentage change
@@ -72,13 +72,6 @@ def update_kpis_and_pies():
     for platform in sales_by_platform:
         sales_by_platform[platform] = (sales_by_platform[platform] / platform_total_new) * 100
 
-    # Calculate percentage changes for platform
-    platform_percent_changes = {
-        platform: sales_by_platform[platform] - previous_sales_by_platform[platform]
-        for platform in sales_by_platform
-    }
-    previous_sales_by_platform = sales_by_platform.copy()
-
     # Create Pie Chart: Sales by Platform
     platform_labels = list(sales_by_platform.keys())
     platform_values = list(sales_by_platform.values())
@@ -93,26 +86,17 @@ def update_kpis_and_pies():
     for product in sales_by_product:
         sales_by_product[product] = (sales_by_product[product] / product_total_new) * 100
 
-    # Calculate percentage changes for product
-    product_percent_changes = {
-        product: sales_by_product[product] - previous_sales_by_product[product]
-        for product in sales_by_product
-    }
-    previous_sales_by_product = sales_by_product.copy()
-
     # Create Pie Chart: Sales by Product
     product_labels = list(sales_by_product.keys())
     product_values = list(sales_by_product.values())
     fig2 = go.Figure(data=[go.Pie(labels=product_labels, values=product_values)])
     fig2.update_layout(title="Số Lượng Bán Theo Loại Sản Phẩm")
 
-    # Display updated Pie charts
-    with pie_placeholder[0]:
+    # Update Pie Charts in Place
+    with chart_placeholders[0]:
         st.plotly_chart(fig1, use_container_width=True)
-        st.write("Thay đổi: ", platform_percent_changes)
-    with pie_placeholder[1]:
+    with chart_placeholders[1]:
         st.plotly_chart(fig2, use_container_width=True)
-        st.write("Thay đổi: ", product_percent_changes)
 
 # Prepare data for visualization
 def prepare_data(data):
