@@ -87,40 +87,50 @@ if page == "Phân Tích Sản Phẩm":
     sales_by_platform_product_date = last_30_days.groupby(['Platform', 'Date', 'Product'])['Daily Sales'].sum().reset_index()
 
     for platform in platforms:
-        st.subheader(f"Doanh số trên {platform}")
-        platform_data = sales_by_platform_product_date[sales_by_platform_product_date['Platform'] == platform]
-        cols = st.columns(4)  # 4 biểu đồ cho mỗi hàng
+    st.header(f"Doanh số trên {platform}")
 
-        for i, product in enumerate(platform_data['Product'].unique()):
-            product_data = platform_data[platform_data['Product'] == product]
+    cols = st.columns(len(products))  # Create columns for products
 
-            fig = go.Figure()
-            fig.add_trace(go.Bar(
-                x=product_data['Date'],
-                y=product_data['Daily Sales'],
-                name='Daily Sales',
-                marker_color='rgb(55, 83, 109)'
-            ))
-            fig.add_trace(go.Scatter(
-                x=product_data['Date'],
-                y=product_data['Daily Sales'].cumsum(),
-                name='Cumulative Sales',
-                line=dict(color='firebrick', width=2)
-            ))
+    for i, product in enumerate(products):
+        product_data = daily_sales[(daily_sales['Platform'] == platform) & (daily_sales['Product'] == product)]
 
-            fig.update_layout(
-                title=f"Sales for {product} (Last 30 Days)",
-                xaxis_title="Date",
-                yaxis_title="Sales",
-                barmode='group',
-                xaxis=dict(tickangle=45),
-                margin=dict(l=20, r=20, t=50, b=20),
-                height=400,
-                width=350
-            )
+        if product_data.empty:
+            cols[i].write(f"Không có dữ liệu cho {product} trên {platform}.")
+            continue
 
-            with cols[i % 4]:
-                st.plotly_chart(fig, use_container_width=True)
+        # Create the figure
+        fig = go.Figure()
+
+        # Add bar chart for daily sales
+        fig.add_trace(go.Bar(
+            x=product_data['Date'],
+            y=product_data['Daily Sales'],
+            name='Daily Sales',
+            marker_color='blue'
+        ))
+
+        # Add line chart for daily sales (not cumulative)
+        fig.add_trace(go.Scatter(
+            x=product_data['Date'],
+            y=product_data['Daily Sales'],
+            name='Sales Line',
+            mode='lines+markers',
+            line=dict(color='red')
+        ))
+
+        # Update layout
+        fig.update_layout(
+            title=f"Sales for {product} (Last 30 Days)",
+            xaxis_title="Date",
+            yaxis_title="Sales",
+            xaxis=dict(tickangle=45),
+            legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5),
+            margin=dict(l=20, r=20, t=50, b=50),
+            height=300
+        )
+
+        # Display chart in the respective column
+        cols[i].plotly_chart(fig, use_container_width=True)
 
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
