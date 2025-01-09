@@ -144,66 +144,64 @@ if page == "Phân Tích Sản Phẩm":
             st.plotly_chart(fig, use_container_width=True)
 
     def generate_affiliate_plan(sales_data, products, platforms):
-    """
-    Generate an Affiliate plan with recommendations for cost allocation.
-    """
-    total_sales = sales_data['Daily Sales'].sum()
-    product_sales = sales_data.groupby('Product')['Daily Sales'].sum()
 
-    # Ngân sách đề xuất (giả định tổng ngân sách từ 20-35 triệu)
-    total_budget = np.random.randint(20_000_000, 35_000_000)
-
-    # Chi phí phân bổ
-    discount_budget = np.random.randint(5_000_000, 10_000_000)  # Giảm giá sản phẩm
-    livestream_ads = 5_000_000  # Quảng cáo livestream
-    post_ads = 5_000_000  # Chạy quảng cáo bài viết
-    script_budget = 5_000_000  # Kịch bản livestream và bài đăng
-    remaining_budget = total_budget - (discount_budget + livestream_ads + post_ads + script_budget)
-
-    # Gợi ý
-    suggestions = [
-        {
-            "Hạng mục": "Giảm giá sản phẩm",
-            "Ngân sách": f"{discount_budget:,} VND",
-            "Chi tiết": "Áp dụng giảm giá từ 10-15% cho các sản phẩm có doanh số thấp."
-        },
-        {
-            "Hạng mục": "Quảng cáo livestream",
-            "Ngân sách": f"{livestream_ads:,} VND",
-            "Chi tiết": "Tập trung vào livestream các sản phẩm hot trên Shopee, TikTok."
-        },
-        {
-            "Hạng mục": "Quảng cáo bài viết",
-            "Ngân sách": f"{post_ads:,} VND",
-            "Chi tiết": "Chạy quảng cáo bài viết với các nội dung chia sẻ về ưu đãi."
-        },
-        {
-            "Hạng mục": "Kịch bản livestream & bài đăng",
-            "Ngân sách": f"{script_budget:,} VND",
-            "Chi tiết": "Tạo nội dung sáng tạo cho các bài đăng và livestream."
-        },
-        {
-            "Hạng mục": "Ngân sách còn lại",
-            "Ngân sách": f"{remaining_budget:,} VND",
-            "Chi tiết": "Dự trữ hoặc sử dụng tùy ý cho các chiến dịch bất ngờ."
-        },
-    ]
-
-    return suggestions
-
-# Thêm phần chiến dịch Affiliate dưới biểu đồ
-if page == "Phân Tích Sản Phẩm":
-    st.title("Định Hướng Chiến Dịch Affiliate")
-
-    # Generate the plan
-    suggestions = generate_affiliate_plan(daily_sales, products, platforms)
-
-    # Hiển thị bảng gợi ý
-    st.write("### Kế Hoạch Đầu Tư Chiến Dịch Affiliate")
-    for suggestion in suggestions:
-        st.write(f"**{suggestion['Hạng mục']}**: {suggestion['Ngân sách']}")
-        st.caption(suggestion['Chi tiết'])
-        
+        total_sales = sales_data['Daily Sales'].sum()
+        product_sales = sales_data.groupby('Product')['Daily Sales'].sum()
+    
+        # Ngân sách đề xuất (giả định tổng ngân sách từ 20-35 triệu)
+        total_budget = np.random.randint(20_000_000, 35_000_000)
+    
+        # Chi phí phân bổ
+        discount_budget = np.random.randint(5_000_000, 10_000_000)  # Giảm giá sản phẩm
+        livestream_ads = 5_000_000  # Quảng cáo livestream
+        post_ads = 5_000_000  # Chạy quảng cáo bài viết
+        script_budget = 5_000_000  # Kịch bản livestream và bài đăng
+        remaining_budget = total_budget - (discount_budget + livestream_ads + post_ads + script_budget)
+    
+        # Gợi ý
+        suggestions = [
+            {
+                "Hạng mục": "Giảm giá sản phẩm",
+                "Ngân sách": f"{discount_budget:,} VND",
+                "Chi tiết": "Áp dụng giảm giá từ 10-15% cho các sản phẩm có doanh số thấp."
+            },
+            {
+                "Hạng mục": "Quảng cáo livestream",
+                "Ngân sách": f"{livestream_ads:,} VND",
+                "Chi tiết": "Tập trung vào livestream các sản phẩm hot trên Shopee, TikTok."
+            },
+            {
+                "Hạng mục": "Quảng cáo bài viết",
+                "Ngân sách": f"{post_ads:,} VND",
+                "Chi tiết": "Chạy quảng cáo bài viết với các nội dung chia sẻ về ưu đãi."
+            },
+            {
+                "Hạng mục": "Kịch bản livestream & bài đăng",
+                "Ngân sách": f"{script_budget:,} VND",
+                "Chi tiết": "Tạo nội dung sáng tạo cho các bài đăng và livestream."
+            },
+            {
+                "Hạng mục": "Ngân sách còn lại",
+                "Ngân sách": f"{remaining_budget:,} VND",
+                "Chi tiết": "Dự trữ hoặc sử dụng tùy ý cho các chiến dịch bất ngờ."
+            },
+        ]
+    
+        return suggestions
+    
+    # Thêm phần chiến dịch Affiliate dưới biểu đồ
+    if page == "Phân Tích Sản Phẩm":
+        st.title("Định Hướng Chiến Dịch Affiliate")
+    
+        # Generate the plan
+        suggestions = generate_affiliate_plan(daily_sales, products, platforms)
+    
+        # Hiển thị bảng gợi ý
+        st.write("### Kế Hoạch Đầu Tư Chiến Dịch Affiliate")
+        for suggestion in suggestions:
+            st.write(f"**{suggestion['Hạng mục']}**: {suggestion['Ngân sách']}")
+            st.caption(suggestion['Chi tiết'])
+            
         
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
