@@ -89,9 +89,9 @@ def update_kpis_and_pies():
 
     # Display updated Pie charts
     with col1:
-    st.plotly_chart(fig1, use_container_width=True)
+        st.plotly_chart(fig1, use_container_width=True)
     with col2:
-    st.plotly_chart(fig2, use_container_width=True)
+        st.plotly_chart(fig2, use_container_width=True)
 
 # Prepare data for visualization
 def prepare_data(data):
