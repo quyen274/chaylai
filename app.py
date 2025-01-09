@@ -9,6 +9,14 @@ import time
 current_day_sales = pd.read_csv('current_day_sales.csv')
 current_day_sales['Time'] = pd.to_datetime(current_day_sales['Time'])
 
+# Load data
+daily_sales = pd.read_csv('daily_sales.csv')
+cart_data = pd.read_csv('items_in_cart.csv')
+available_data = pd.read_csv('available_items.csv')
+
+# Convert dates
+daily_sales['Date'] = pd.to_datetime(daily_sales['Date'])
+
 platforms = current_day_sales['Platform'].unique()
 products = current_day_sales['Product'].unique()
 
