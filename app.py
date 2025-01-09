@@ -50,8 +50,30 @@ chart_placeholder = st.empty()
 def update_kpis_and_pies():
     global current_revenue, current_cost, sales_by_platform, sales_by_product
 
-    # Update revenue and cost
-    current_revenue += 150_000  # Increase revenue every 5 seconds
+    # Adjust for removed platforms
+    if len(selected_platforms) < len(platforms):
+        removed_platforms = set(platforms) - set(selected_platforms)
+        for platform in removed_platforms:
+            share_to_distribute = sales_by_platform[platform] / len(selected_platforms)
+            for remaining_platform in selected_platforms:
+                sales_by_platform[remaining_platform] += share_to_distribute
+            del sales_by_platform[platform]
+
+    # Adjust for removed products
+    if len(selected_products) < len(products):
+        removed_products = set(products) - set(selected_products)
+        for product in removed_products:
+            share_to_distribute = sales_by_product[product] / len(selected_products)
+            for remaining_product in selected_products:
+                sales_by_product[remaining_product] += share_to_distribute
+            del sales_by_product[product]
+
+    # Adjust revenue and cost based on selections
+    if len(selected_platforms) < len(platforms):
+        current_revenue *= 0.7  # Reduce revenue by 30% if a platform is removed
+    if len(selected_products) < len(products):
+        current_revenue *= (1 - 0.02 * len(products - selected_products))  # Reduce revenue by 2% per removed product
+
     current_cost = current_revenue * 0.6  # Cost is 60% of revenue
     profit = current_revenue - current_cost
 
