@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import time
-from streamlit_option_menu import option_menu
 
 # Load the existing dataset
 current_day_sales = pd.read_csv('current_day_sales.csv')
@@ -12,43 +11,33 @@ current_day_sales['Time'] = pd.to_datetime(current_day_sales['Time'])
 platforms = current_day_sales['Platform'].unique()
 products = current_day_sales['Product'].unique()
 
-# Add a navigation menu
-selected_page = option_menu(
-    menu_title="Menu",
-    options=["Báo Cáo Sản Phẩm", "Báo Cáo Doanh Số"],
-    icons=["clipboard-data", "bar-chart"],
-    menu_icon="menu-app",
-    default_index=0,
-    orientation="horizontal",
-)
+# Streamlit setup
+st.set_page_config(page_title="Phân Tích Sản Phẩm và Báo Cáo Doanh Số", layout="wide")
 
-# Page 1: Báo Cáo Sản Phẩm
-if selected_page == "Báo Cáo Sản Phẩm":
-    st.title("Báo Cáo Sản Phẩm")
-    st.write("Phân tích thống kê số lượng bán theo tháng, tuần và sàn thương mại.")
+# Sidebar navigation
+page = st.sidebar.selectbox("Chọn trang", ["Phân Tích Sản Phẩm", "Báo Cáo Tự Động Về Doanh Số"])
 
-    # Tổng hợp số liệu theo tháng
-    current_day_sales['Month'] = current_day_sales['Time'].dt.to_period('M')
-    sales_by_month = current_day_sales.groupby('Month')['Sales (15 min)'].sum()
-    fig_month = go.Figure(data=[go.Bar(x=sales_by_month.index.astype(str), y=sales_by_month.values)])
-    fig_month.update_layout(title="Số Lượng Bán Theo Tháng", xaxis_title="Tháng", yaxis_title="Số Lượng Bán")
-    st.plotly_chart(fig_month, use_container_width=True)
+if page == "Phân Tích Sản Phẩm":
+    st.title("Phân Tích Sản Phẩm")
 
-    # Tổng hợp số liệu theo tuần
-    current_day_sales['Week'] = current_day_sales['Time'].dt.to_period('W')
-    sales_by_week = current_day_sales.groupby('Week')['Sales (15 min)'].sum()
-    fig_week = go.Figure(data=[go.Bar(x=sales_by_week.index.astype(str), y=sales_by_week.values)])
-    fig_week.update_layout(title="Số Lượng Bán Theo Tuần", xaxis_title="Tuần", yaxis_title="Số Lượng Bán")
-    st.plotly_chart(fig_week, use_container_width=True)
+    # Tổng quan số lượng bán theo tháng
+    monthly_sales = current_day_sales.groupby(current_day_sales['Time'].dt.to_period('M')).sum()['Sales (15 min)']
+    st.subheader("Số lượng bán theo tháng")
+    st.line_chart(monthly_sales)
 
-    # Phân tích theo sàn thương mại
+    # Tổng quan số lượng bán theo tuần
+    weekly_sales = current_day_sales.groupby(current_day_sales['Time'].dt.to_period('W')).sum()['Sales (15 min)']
+    st.subheader("Số lượng bán theo tuần")
+    st.bar_chart(weekly_sales)
+
+    # Tổng quan số lượng bán theo sàn
     sales_by_platform = current_day_sales.groupby('Platform')['Sales (15 min)'].sum()
-    fig_platform = go.Figure(data=[go.Pie(labels=sales_by_platform.index, values=sales_by_platform.values)])
-    fig_platform.update_layout(title="Phân Chia Số Lượng Bán Theo Sàn")
-    st.plotly_chart(fig_platform, use_container_width=True)
+    st.subheader("Số lượng bán theo sàn")
+    fig = go.Figure(data=[go.Pie(labels=sales_by_platform.index, values=sales_by_platform.values)])
+    fig.update_layout(title="Phân bổ doanh số theo sàn")
+    st.plotly_chart(fig, use_container_width=True)
 
-# Page 2: Báo Cáo Doanh Số
-elif selected_page == "Báo Cáo Doanh Số":
+elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
     st.write("Hiển thị doanh số, lợi nhuận và thông tin liên quan.")
 
