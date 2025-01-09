@@ -29,9 +29,9 @@ page = st.sidebar.selectbox("Chọn trang", ["Phân Tích Sản Phẩm", "Báo C
 if page == "Phân Tích Sản Phẩm":
     st.title("Phân Tích Sản Phẩm")
 
-   if daily_sales.empty or 'Date' not in daily_sales.columns or 'Platform' not in daily_sales.columns or 'Daily Sales' not in daily_sales.columns:
+    if daily_sales.empty or 'Date' not in daily_sales.columns or 'Platform' not in daily_sales.columns or 'Daily Sales' not in daily_sales.columns:
         st.error("Dữ liệu không hợp lệ. Vui lòng kiểm tra các cột trong file daily_sales.csv.")
-   else:
+    else:
         # Biểu đồ cột: Tổng số lượng bán ra theo tháng
         daily_sales['Month'] = daily_sales['Date'].dt.to_period('M')
         sales_by_month = daily_sales.groupby(['Month', 'Platform'])['Daily Sales'].sum().reset_index()
