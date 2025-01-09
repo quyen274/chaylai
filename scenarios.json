@@ -18,8 +18,8 @@
         ],
         "promotion": "Mua 2 tặng 1 áp dụng cho combo búp bê giá rẻ.",
         "expected": {
-            "doanh_thu": "50 triệu VND",
-            "hoa_hong": "5 triệu VND"
+            "Doanh thu": "50 triệu VND",
+            "Hoa hồng": "5 triệu VND"
         },
         "risks": {
             "Quảng cáo không hiệu quả": "Điều chỉnh đối tượng quảng cáo theo độ tuổi và sở thích."
@@ -44,8 +44,8 @@
         ],
         "promotion": "Giảm 10% cho đơn hàng từ 500K trở lên.",
         "expected": {
-            "doanh_thu": "80 triệu VND",
-            "hoa_hong": "10 triệu VND"
+            "Doanh thu": "80 triệu VND",
+            "Hoa hồng": "10 triệu VND"
         },
         "risks": {
             "Lượng khách truy cập thấp": "Tạo minigame tặng quà để thu hút thêm lượt truy cập."
@@ -71,8 +71,8 @@
         ],
         "promotion": "Giảm giá 15% toàn bộ sản phẩm vào ngày 15 và 30 hàng tháng.",
         "expected": {
-            "doanh_thu": "100-120 triệu VND",
-            "hoa_hong": "15 triệu VND"
+            "Doanh thu": "100-120 triệu VND",
+            "Hoa hồng": "15 triệu VND"
         },
         "risks": {
             "Livestream không thu hút được người xem": "Sử dụng tính năng 'thông báo livestream' trên TikTok và gửi email marketing để thông báo khách hàng.",
@@ -101,8 +101,8 @@
         ],
         "promotion": "Giảm giá 20% cho đơn hàng từ 1 triệu trở lên, áp dụng từ ngày 15-20 hàng tháng.",
         "expected": {
-            "doanh_thu": "150 triệu VND",
-            "hoa_hong": "22 triệu VND"
+            "Doanh thu": "150 triệu VND",
+            "Hoa hồng": "22 triệu VND"
         },
         "risks": {
             "Livestream không thu hút đủ người xem": "Mời KOL quảng bá trước livestream để tăng lượt xem.",
@@ -129,9 +129,9 @@
             "Tuần 4: Tổng kết chiến dịch, đánh giá và tối ưu hóa quảng cáo."
         ],
         "promotion": "Flash Sale 30% cho toàn bộ sản phẩm vào ngày 20 và 25 hàng tháng.",
-        "expected":{ 
-            "doanh_thu": "200 triệu VND",
-            "hoa_hong": "35 triệu VND"
+        "expected": {
+            "Doanh thu": "200 triệu VND",
+            "Hoa hồng": "35 triệu VND"
         },
         "risks": {
             "Nội dung livestream không hấp dẫn": "Tăng thêm các chương trình mini-game, giveaway trong livestream.",
@@ -159,8 +159,8 @@
         ],
         "promotion": "Giảm giá 30% cho toàn bộ sản phẩm trong tuần lễ khuyến mãi đặc biệt.",
         "expected": {
-            "doanh_thu": "250 triệu VND",
-            "hoa_hong": "50 triệu VND"
+            "Doanh thu": "250 triệu VND",
+            "Hoa hồng": "50 triệu VND"
         },
         "risks": {
             "Chi phí quảng cáo vượt dự kiến": "Giảm bớt số lượng quảng cáo bài viết và tập trung vào các nội dung đang hoạt động tốt.",
@@ -188,8 +188,8 @@
         ],
         "promotion": "Flash Sale 40% áp dụng vào cuối tuần (Thứ 7, Chủ nhật).",
         "expected": {
-            "doanh_thu": "300 triệu VND",
-            "hoa_hong": "60 triệu VND"
+            "Doanh thu": "300 triệu VND",
+            "Hoa hồng": "60 triệu VND"
         },
         "risks": {
             "Chiến dịch Flash Sale không đạt mục tiêu": "Đẩy mạnh retargeting trên Facebook để tiếp cận khách hàng cũ.",
