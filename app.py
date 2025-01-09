@@ -20,32 +20,23 @@ page = st.sidebar.selectbox("Chọn trang", ["Phân Tích Sản Phẩm", "Báo C
 
 if page == "Phân Tích Sản Phẩm":
     st.title("Phân Tích Sản Phẩm")
-    
-    # Load data
-    daily_sales = pd.read_csv('daily_sales.csv')
-    cart_data = pd.read_csv('items_in_cart.csv')
-
-    # Convert dates
-    daily_sales['Date'] = pd.to_datetime(daily_sales['Date'])
 
     # 1. Slice Biểu đồ tổng số lượng bán ra theo tháng
     daily_sales['Month'] = daily_sales['Date'].dt.to_period('M')
     sales_by_month = daily_sales.groupby(['Month', 'Platform'])['Daily Sales'].sum().unstack()
 
-    st.subheader("Tổng Số Lượng Bán Ra Theo Tháng")
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=(8, 4))  # Adjusted size
     sales_by_month.plot(kind='bar', ax=ax, colormap='viridis')
     ax.set_title('Total Sales by Month and Platform')
     ax.set_xlabel('Month')
     ax.set_ylabel('Total Sales')
-    ax.set_xticklabels(sales_by_month.index.astype(str), rotation=45)
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
     ax.legend(title='Platform')
     st.pyplot(fig)
 
     # 2. Pie Chart: Sản phẩm trong giỏ hàng
-    st.subheader("Phân Phối Sản Phẩm Trong Giỏ Hàng")
     platforms = cart_data['Platform'].unique()
-    fig, axes = plt.subplots(1, len(platforms), figsize=(18, 6))
+    fig, axes = plt.subplots(1, len(platforms), figsize=(12, 4))  # Adjusted size
     for i, platform in enumerate(platforms):
         platform_cart = cart_data[cart_data['Platform'] == platform]
         items_in_cart = platform_cart.groupby('Product')['Items in Cart'].sum()
