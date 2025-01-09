@@ -30,58 +30,58 @@ if page == "Phân Tích Sản Phẩm":
     st.title("Phân Tích Sản Phẩm")
 
    if daily_sales.empty or 'Date' not in daily_sales.columns or 'Platform' not in daily_sales.columns or 'Daily Sales' not in daily_sales.columns:
-    st.error("Dữ liệu không hợp lệ. Vui lòng kiểm tra các cột trong file daily_sales.csv.")
-else:
-    # Biểu đồ cột: Tổng số lượng bán ra theo tháng
-    daily_sales['Month'] = daily_sales['Date'].dt.to_period('M')
-    sales_by_month = daily_sales.groupby(['Month', 'Platform'])['Daily Sales'].sum().reset_index()
-
-    if sales_by_month.empty:
-        st.warning("Không có dữ liệu để hiển thị biểu đồ cột.")
-    else:
-        fig_bar = px.bar(
-            sales_by_month,
-            x='Month',
-            y='Daily Sales',
-            color='Platform',
-            barmode='group',
-            title='Tổng Số Lượng Bán Theo Tháng và Nền Tảng',
-            labels={'Daily Sales': 'Tổng Số Lượng Bán', 'Month': 'Tháng'},
-            color_discrete_sequence=px.colors.qualitative.Vivid,
-        )
-        fig_bar.update_layout(
-            xaxis=dict(tickangle=45),
-            title=dict(x=0.5),
-            margin=dict(l=20, r=20, t=50, b=20),
-            height=400,
-        )
-        st.plotly_chart(fig_bar, use_container_width=True)
-
-if cart_data.empty or 'Platform' not in cart_data.columns or 'Product' not in cart_data.columns or 'Items in Cart' not in cart_data.columns:
-    st.error("Dữ liệu không hợp lệ. Vui lòng kiểm tra các cột trong file items_in_cart.csv.")
-else:
-    platforms = cart_data['Platform'].unique()
-    for platform in platforms:
-        platform_cart = cart_data[cart_data['Platform'] == platform]
-        items_in_cart = platform_cart.groupby('Product')['Items in Cart'].sum().reset_index()
-
-        if items_in_cart.empty:
-            st.warning(f"Không có dữ liệu cho {platform}.")
+        st.error("Dữ liệu không hợp lệ. Vui lòng kiểm tra các cột trong file daily_sales.csv.")
+   else:
+        # Biểu đồ cột: Tổng số lượng bán ra theo tháng
+        daily_sales['Month'] = daily_sales['Date'].dt.to_period('M')
+        sales_by_month = daily_sales.groupby(['Month', 'Platform'])['Daily Sales'].sum().reset_index()
+    
+        if sales_by_month.empty:
+            st.warning("Không có dữ liệu để hiển thị biểu đồ cột.")
         else:
-            fig_pie = px.pie(
-                items_in_cart,
-                names='Product',
-                values='Items in Cart',
-                title=f'Phân Phối Sản Phẩm Trong Giỏ Hàng Trên {platform}',
-                color_discrete_sequence=px.colors.qualitative.Pastel,
+            fig_bar = px.bar(
+                sales_by_month,
+                x='Month',
+                y='Daily Sales',
+                color='Platform',
+                barmode='group',
+                title='Tổng Số Lượng Bán Theo Tháng và Nền Tảng',
+                labels={'Daily Sales': 'Tổng Số Lượng Bán', 'Month': 'Tháng'},
+                color_discrete_sequence=px.colors.qualitative.Vivid,
             )
-            fig_pie.update_traces(textinfo='percent+label')
-            fig_pie.update_layout(
+            fig_bar.update_layout(
+                xaxis=dict(tickangle=45),
                 title=dict(x=0.5),
                 margin=dict(l=20, r=20, t=50, b=20),
                 height=400,
             )
-            st.plotly_chart(fig_pie, use_container_width=True)
+            st.plotly_chart(fig_bar, use_container_width=True)
+    
+    if cart_data.empty or 'Platform' not in cart_data.columns or 'Product' not in cart_data.columns or 'Items in Cart' not in cart_data.columns:
+        st.error("Dữ liệu không hợp lệ. Vui lòng kiểm tra các cột trong file items_in_cart.csv.")
+    else:
+        platforms = cart_data['Platform'].unique()
+        for platform in platforms:
+            platform_cart = cart_data[cart_data['Platform'] == platform]
+            items_in_cart = platform_cart.groupby('Product')['Items in Cart'].sum().reset_index()
+    
+            if items_in_cart.empty:
+                st.warning(f"Không có dữ liệu cho {platform}.")
+            else:
+                fig_pie = px.pie(
+                    items_in_cart,
+                    names='Product',
+                    values='Items in Cart',
+                    title=f'Phân Phối Sản Phẩm Trong Giỏ Hàng Trên {platform}',
+                    color_discrete_sequence=px.colors.qualitative.Pastel,
+                )
+                fig_pie.update_traces(textinfo='percent+label')
+                fig_pie.update_layout(
+                    title=dict(x=0.5),
+                    margin=dict(l=20, r=20, t=50, b=20),
+                    height=400,
+                )
+                st.plotly_chart(fig_pie, use_container_width=True)
 
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
