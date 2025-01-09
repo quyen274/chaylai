@@ -29,71 +29,63 @@ page = st.sidebar.selectbox("Chọn trang", ["Phân Tích Sản Phẩm", "Báo C
 if page == "Phân Tích Sản Phẩm":
     st.title("Phân Tích Sản Phẩm")
 
+    # Check data validity for daily_sales
     if 'Date' not in daily_sales.columns or 'Platform' not in daily_sales.columns or 'Daily Sales' not in daily_sales.columns:
         st.error("Dữ liệu không hợp lệ. Vui lòng kiểm tra các cột trong file daily_sales.csv.")
     else:
-        # Convert dates
-        daily_sales['Date'] = pd.to_datetime(daily_sales['Date'])
-    
-        # Biểu đồ cột: Tổng số lượng bán ra theo tháng
+        # Group data by month and platform
         daily_sales['Month'] = daily_sales['Date'].dt.to_period('M')
         sales_by_month = daily_sales.groupby(['Month', 'Platform'])['Daily Sales'].sum().reset_index()
-    
+
         if sales_by_month.empty:
             st.warning("Không có dữ liệu để hiển thị biểu đồ.")
         else:
+            # Bar chart for monthly sales by platform
             fig_bar = px.bar(
                 sales_by_month,
                 x='Month',
                 y='Daily Sales',
                 color='Platform',
                 barmode='group',
-                title='Total Sales by Month and Platform',
-                labels={'Daily Sales': 'Total Sales', 'Month': 'Month'},
+                title='Tổng Số Lượng Bán Theo Tháng và Nền Tảng',
+                labels={'Daily Sales': 'Tổng Số Lượng Bán', 'Month': 'Tháng'},
                 color_discrete_sequence=px.colors.qualitative.Vivid,
             )
-    
             fig_bar.update_layout(
-                xaxis=dict(tickangle=45),  # Xoay nhãn trục X
-                title=dict(x=0.5),  # Canh giữa tiêu đề
-                margin=dict(l=20, r=20, t=50, b=20),  # Lề gọn hơn
-                height=400,  # Chiều cao biểu đồ
+                xaxis=dict(tickangle=45),
+                title=dict(x=0.5),
+                margin=dict(l=20, r=20, t=50, b=20),
+                height=400,
             )
-    
-            # Hiển thị biểu đồ cột
             st.plotly_chart(fig_bar, use_container_width=True)
 
-    # Biểu đồ tròn: Phân phối sản phẩm trong giỏ hàng
-    cart_data = pd.read_csv('items_in_cart.csv')
-    
+    # Pie chart for product distribution in carts
     if 'Platform' not in cart_data.columns or 'Product' not in cart_data.columns or 'Items in Cart' not in cart_data.columns:
         st.error("Dữ liệu không hợp lệ. Vui lòng kiểm tra các cột trong file items_in_cart.csv.")
     else:
         platforms = cart_data['Platform'].unique()
-    
+
         for platform in platforms:
             platform_cart = cart_data[cart_data['Platform'] == platform]
             items_in_cart = platform_cart.groupby('Product')['Items in Cart'].sum().reset_index()
-    
+
             if items_in_cart.empty:
                 st.warning(f"Không có dữ liệu cho {platform}.")
             else:
+                # Pie chart for product distribution on each platform
                 fig_pie = px.pie(
                     items_in_cart,
                     names='Product',
                     values='Items in Cart',
-                    title=f'Cart Distribution on {platform}',
+                    title=f'Phân Phối Sản Phẩm Trong Giỏ Hàng Trên {platform}',
                     color_discrete_sequence=px.colors.qualitative.Pastel,
                 )
-    
-                fig_pie.update_traces(textinfo='percent+label')  # Hiển thị phần trăm và nhãn
+                fig_pie.update_traces(textinfo='percent+label')
                 fig_pie.update_layout(
-                    title=dict(x=0.5),  # Canh giữa tiêu đề
-                    margin=dict(l=20, r=20, t=50, b=20),  # Lề gọn
-                    height=400,  # Chiều cao biểu đồ
+                    title=dict(x=0.5),
+                    margin=dict(l=20, r=20, t=50, b=20),
+                    height=400,
                 )
-    
-                # Hiển thị từng biểu đồ tròn
                 st.plotly_chart(fig_pie, use_container_width=True)
 
 elif page == "Báo Cáo Tự Động Về Doanh Số":
