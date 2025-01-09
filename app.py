@@ -26,33 +26,6 @@ st.set_page_config(page_title="Phân Tích Sản Phẩm và Báo Cáo Doanh Số
 # Sidebar navigation
 page = st.sidebar.selectbox("Chọn trang", ["Phân Tích Sản Phẩm", "Báo Cáo Tự Động Về Doanh Số"])
 
-import streamlit as st
-import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
-import time
-
-# Load the existing dataset
-current_day_sales = pd.read_csv('current_day_sales.csv')
-current_day_sales['Time'] = pd.to_datetime(current_day_sales['Time'])
-
-# Load data
-daily_sales = pd.read_csv('daily_sales.csv')
-cart_data = pd.read_csv('items_in_cart.csv')
-available_data = pd.read_csv('available_items.csv')
-
-# Convert dates
-daily_sales['Date'] = pd.to_datetime(daily_sales['Date'])
-
-platforms = current_day_sales['Platform'].unique()
-products = current_day_sales['Product'].unique()
-
-# Streamlit setup
-st.set_page_config(page_title="Phân Tích Sản Phẩm và Báo Cáo Doanh Số", layout="wide")
-
-# Sidebar navigation
-page = st.sidebar.selectbox("Chọn trang", ["Phân Tích Sản Phẩm", "Báo Cáo Tự Động Về Doanh Số"])
-
 if page == "Phân Tích Sản Phẩm":
     st.title("Phân Tích Sản Phẩm")
 
@@ -109,6 +82,7 @@ if page == "Phân Tích Sản Phẩm":
     for col, fig in zip(cols, fig_pie_row):
         with col:
             st.plotly_chart(fig, use_container_width=False)
+
 
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
