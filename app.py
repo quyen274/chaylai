@@ -4,6 +4,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import time
+import json
 
 # Load the existing dataset
 current_day_sales = pd.read_csv('current_day_sales.csv')
