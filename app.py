@@ -55,55 +55,55 @@ def simulate_new_data(data):
     new_df = pd.DataFrame(new_data)
     return pd.concat([data, new_df], ignore_index=True)
 
-# Update real-time data
-st.session_state['data'] = simulate_new_data(st.session_state['data'])
-filtered_data = filter_data(st.session_state['data'], selected_platforms, selected_products)
+# Real-time updates
+def update_kpis_and_pies():
+    # Update revenue and cost
+    st.session_state['total_revenue'] += 150_000  # Increase revenue every 5 seconds
+    st.session_state['total_cost'] = st.session_state['total_revenue'] * 0.6  # Cost is 60% of revenue
+    profit = st.session_state['total_revenue'] - st.session_state['total_cost']
 
-# Update KPIs
-total_sales_new = filtered_data['Sales (15 min)'].sum()
-st.session_state['total_revenue'] += 150_000  # Increase revenue every 5 seconds
-st.session_state['total_cost'] = st.session_state['total_revenue'] * 0.6  # Cost is 60% of revenue
-profit = st.session_state['total_revenue'] - st.session_state['total_cost']
+    # Display KPIs
+    st.metric("Tổng Doanh Thu", f"${st.session_state['total_revenue'] / 1e6:.2f}M", delta=f"+0.15M")
+    st.metric("Tổng Lợi Nhuận", f"${profit / 1e6:.2f}M", delta=f"+{(150_000 - 150_000 * 0.6) / 1e6:.2f}M")
 
-# Display KPIs
-st.metric("Tổng Doanh Thu", f"${st.session_state['total_revenue'] / 1e6:.2f}M", delta=f"+0.15M")
-st.metric("Tổng Lợi Nhuận", f"${profit / 1e6:.2f}M", delta=f"+{(150_000 - 150_000 * 0.6) / 1e6:.2f}M")
+    # Update Pie chart: Số lượng bán trên từng sàn
+    platform_total = sum(st.session_state['sales_by_platform'].values())
+    for platform in st.session_state['sales_by_platform']:
+        st.session_state['sales_by_platform'][platform] += np.random.uniform(0.1, 2.0)
 
-# Update Pie chart: Số lượng bán trên từng sàn
-platform_total = sum(st.session_state['sales_by_platform'].values())
-for platform in st.session_state['sales_by_platform']:
-    st.session_state['sales_by_platform'][platform] += np.random.uniform(0.1, 2.0)
+    # Normalize to ensure the total is 100%
+    platform_total_new = sum(st.session_state['sales_by_platform'].values())
+    for platform in st.session_state['sales_by_platform']:
+        st.session_state['sales_by_platform'][platform] = (st.session_state['sales_by_platform'][platform] / platform_total_new) * 100
 
-# Normalize to ensure the total is 100%
-platform_total_new = sum(st.session_state['sales_by_platform'].values())
-for platform in st.session_state['sales_by_platform']:
-    st.session_state['sales_by_platform'][platform] = (st.session_state['sales_by_platform'][platform] / platform_total_new) * 100
+    # Create Pie Chart: Sales by Platform
+    platform_labels = list(st.session_state['sales_by_platform'].keys())
+    platform_values = list(st.session_state['sales_by_platform'].values())
+    fig1 = go.Figure(data=[go.Pie(labels=platform_labels, values=platform_values)])
+    fig1.update_layout(title="Số Lượng Bán Theo Sàn")
 
-# Create Pie Chart: Sales by Platform
-platform_labels = list(st.session_state['sales_by_platform'].keys())
-platform_values = list(st.session_state['sales_by_platform'].values())
-fig1 = go.Figure(data=[go.Pie(labels=platform_labels, values=platform_values)])
-fig1.update_layout(title="Số Lượng Bán Theo Sàn")
+    # Update Pie chart: Số lượng bán theo loại sản phẩm
+    product_total = sum(st.session_state['sales_by_product'].values())
+    for product in st.session_state['sales_by_product']:
+        st.session_state['sales_by_product'][product] += np.random.uniform(0.5, 1.0)
 
-# Update Pie chart: Số lượng bán theo loại sản phẩm
-product_total = sum(st.session_state['sales_by_product'].values())
-for product in st.session_state['sales_by_product']:
-    st.session_state['sales_by_product'][product] += np.random.uniform(0.5, 1.0)
+    # Normalize to ensure the total is 100%
+    product_total_new = sum(st.session_state['sales_by_product'].values())
+    for product in st.session_state['sales_by_product']:
+        st.session_state['sales_by_product'][product] = (st.session_state['sales_by_product'][product] / product_total_new) * 100
 
-# Normalize to ensure the total is 100%
-product_total_new = sum(st.session_state['sales_by_product'].values())
-for product in st.session_state['sales_by_product']:
-    st.session_state['sales_by_product'][product] = (st.session_state['sales_by_product'][product] / product_total_new) * 100
+    # Create Pie Chart: Sales by Product
+    product_labels = list(st.session_state['sales_by_product'].keys())
+    product_values = list(st.session_state['sales_by_product'].values())
+    fig2 = go.Figure(data=[go.Pie(labels=product_labels, values=product_values)])
+    fig2.update_layout(title="Số Lượng Bán Theo Loại Sản Phẩm")
 
-# Create Pie Chart: Sales by Product
-product_labels = list(st.session_state['sales_by_product'].keys())
-product_values = list(st.session_state['sales_by_product'].values())
-fig2 = go.Figure(data=[go.Pie(labels=product_labels, values=product_values)])
-fig2.update_layout(title="Số Lượng Bán Theo Loại Sản Phẩm")
+    # Display updated Pie charts
+    st.plotly_chart(fig1, use_container_width=True)
+    st.plotly_chart(fig2, use_container_width=True)
 
-# Display updated Pie charts
-st.plotly_chart(fig1, use_container_width=True)
-st.plotly_chart(fig2, use_container_width=True)
+# Placeholder for the chart
+chart_placeholder = st.empty()
 
 # Prepare data for visualization
 def prepare_data(data):
@@ -121,13 +121,12 @@ def adjust_time(data):
     return data
 
 current_day_sales = adjust_time(current_day_sales)
-
-# Placeholder for the chart
-chart_placeholder = st.empty()
-
 data = st.session_state['data']
 
 while True:
+    # Update KPIs and Pie Charts
+    update_kpis_and_pies()
+
     # Filter data based on user selections
     filtered_data = filter_data(data, selected_platforms, selected_products)
 
