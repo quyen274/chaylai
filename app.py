@@ -56,17 +56,17 @@ st.metric("Tổng Doanh Thu", f"${total_sales / 1e6:.2f}M", delta=f"+{(total_sal
 st.metric("Tổng Lợi Nhuận", f"${total_profit / 1e6:.2f}M", delta=f"-{total_cost / 1e6:.1f}M")
 st.session_state['total_sales'] = total_sales
 
-# Pie chart: Số lượng bán trên từng sàn
+# Update Pie chart: Số lượng bán trên từng sàn
 sales_by_platform = filtered_data.groupby('Platform')['Sales (15 min)'].sum()
 fig1 = go.Figure(data=[go.Pie(labels=sales_by_platform.index, values=sales_by_platform.values)])
 fig1.update_layout(title="Số Lượng Bán Theo Sàn")
 
-# Pie chart: Số lượng bán theo loại sản phẩm
+# Update Pie chart: Số lượng bán theo loại sản phẩm
 sales_by_product = filtered_data.groupby('Product')['Sales (15 min)'].sum()
 fig2 = go.Figure(data=[go.Pie(labels=sales_by_product.index, values=sales_by_product.values)])
 fig2.update_layout(title="Số Lượng Bán Theo Loại Sản Phẩm")
 
-# Display charts
+# Display updated Pie charts
 st.plotly_chart(fig1, use_container_width=True)
 st.plotly_chart(fig2, use_container_width=True)
 
