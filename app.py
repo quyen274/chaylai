@@ -82,7 +82,45 @@ if page == "Phân Tích Sản Phẩm":
     for col, fig in zip(cols, fig_pie_row):
         with col:
             st.plotly_chart(fig, use_container_width=False)
+     # Biểu đồ cột và đường: Tổng số lượng bán ra theo sản phẩm trong 30 ngày gần nhất tách theo sàn
+    last_30_days = daily_sales[daily_sales['Date'] >= pd.Timestamp.now() - pd.Timedelta(days=30)]
+    sales_by_platform_product_date = last_30_days.groupby(['Platform', 'Date', 'Product'])['Daily Sales'].sum().reset_index()
 
+    for platform in platforms:
+        st.subheader(f"Doanh số trên {platform}")
+        platform_data = sales_by_platform_product_date[sales_by_platform_product_date['Platform'] == platform]
+        cols = st.columns(4)  # 4 biểu đồ cho mỗi hàng
+
+        for i, product in enumerate(platform_data['Product'].unique()):
+            product_data = platform_data[platform_data['Product'] == product]
+
+            fig = go.Figure()
+            fig.add_trace(go.Bar(
+                x=product_data['Date'],
+                y=product_data['Daily Sales'],
+                name='Daily Sales',
+                marker_color='rgb(55, 83, 109)'
+            ))
+            fig.add_trace(go.Scatter(
+                x=product_data['Date'],
+                y=product_data['Daily Sales'].cumsum(),
+                name='Cumulative Sales',
+                line=dict(color='firebrick', width=2)
+            ))
+
+            fig.update_layout(
+                title=f"Sales for {product} (Last 30 Days)",
+                xaxis_title="Date",
+                yaxis_title="Sales",
+                barmode='group',
+                xaxis=dict(tickangle=45),
+                margin=dict(l=20, r=20, t=50, b=20),
+                height=400,
+                width=350
+            )
+
+            with cols[i % 4]:
+                st.plotly_chart(fig, use_container_width=True)
 
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
