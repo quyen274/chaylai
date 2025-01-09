@@ -172,7 +172,11 @@ if page == "Phân Tích Sản Phẩm":
         st.markdown(scenario['promotion'])
     
         st.write("**Kỳ vọng hiệu quả:**")
-        st.markdown(scenario['expected'])
+        if isinstance(scenario['expected'], dict):
+            for key, value in scenario['expected'].items():
+                st.write(f"- **{key}:** {value}")
+        else:
+            st.markdown(scenario['expected'])
     
         # Nút chuyển kịch bản
         if st.button("Gen kịch bản khác"):
