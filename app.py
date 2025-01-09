@@ -114,7 +114,7 @@ if page == "Phân Tích Sản Phẩm":
                     x=product_data['Date'],
                     y=product_data['Daily Sales'],
                     name='3-Day Total Sales',
-                    marker_color='blue'
+                    marker_color='Green'
                 ))
     
                 # Line chart for daily sales in the same interval
