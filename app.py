@@ -48,7 +48,7 @@ if page == "Phân Tích Sản Phẩm":
         yaxis_title="Total Sales",
         barmode='group',
         xaxis=dict(tickangle=45),
-        margin=dict(l=20, r=40, t=50, b=20),
+        margin=dict(l=40, r=40, t=50, b=20),
         height=700,
         width=500 
     )
