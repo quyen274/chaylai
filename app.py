@@ -77,44 +77,71 @@ def prepare_data(data):
     )
     return pivot_data
 
-# Prepare data for the main chart
-pivot_data = prepare_data(filtered_data)
-if len(pivot_data) > zoom_level:
-    visible_data = pivot_data.iloc[-zoom_level:]
-else:
-    visible_data = pivot_data
+# Adjust the dataset time
+def adjust_time(data):
+    min_time = data['Time'].min()
+    current_time = pd.Timestamp.now().replace(second=0, microsecond=0)
+    time_diff = current_time - min_time
+    data['Time'] = data['Time'] + time_diff
+    return data
 
-# Main chart
-fig3 = go.Figure()
+current_day_sales = adjust_time(current_day_sales)
 
-# Add stacked bar traces
-for platform in selected_platforms:
-    if platform in visible_data.columns:
-        fig3.add_trace(go.Bar(
-            x=visible_data.index,
-            y=visible_data[platform],
-            name=platform
-        ))
+# Placeholder for the chart
+chart_placeholder = st.empty()
 
-# Add line traces
-cumulative_data = visible_data.cumsum(axis=1)
-for i, platform in enumerate(selected_platforms):
-    if platform in cumulative_data.columns:
-        fig3.add_trace(go.Scatter(
-            x=visible_data.index,
-            y=cumulative_data[platform],
-            mode='lines+markers',
-            name=f"{platform} (Đường)"
-        ))
+data = st.session_state['data']
 
-fig3.update_layout(
-    barmode='stack',
-    title="Biểu Đồ Doanh Số Theo Thời Gian",
-    xaxis_title="Thời Gian",
-    yaxis_title="Doanh Số",
-    xaxis=dict(rangeslider=dict(visible=True), type="date"),
-    template="plotly_white"
-)
+while True:
+    # Filter data based on user selections
+    filtered_data = filter_data(data, selected_platforms, selected_products)
 
-# Display the main chart
-st.plotly_chart(fig3, use_container_width=True)
+    # Prepare data for chart
+    pivot_data = prepare_data(filtered_data)
+
+    # Select visible data based on zoom level
+    if len(pivot_data) > zoom_level:
+        visible_data = pivot_data.iloc[-zoom_level:]
+    else:
+        visible_data = pivot_data
+
+    # Create Plotly figure
+    fig = go.Figure()
+
+    # Add stacked bar traces
+    for platform in selected_platforms:
+        if platform in visible_data.columns:
+            fig.add_trace(go.Bar(
+                x=visible_data.index,
+                y=visible_data[platform],
+                name=platform
+            ))
+
+    # Add line traces
+    cumulative_data = visible_data.cumsum(axis=1)
+    for i, platform in enumerate(selected_platforms):
+        if platform in cumulative_data.columns:
+            fig.add_trace(go.Scatter(
+                x=visible_data.index,
+                y=cumulative_data[platform],
+                mode='lines+markers',
+                name=f"{platform} (Đường)"
+            ))
+
+    fig.update_layout(
+        barmode='stack',
+        title="Biểu Đồ Doanh Số Theo Thời Gian",
+        xaxis_title="Thời Gian",
+        yaxis_title="Doanh Số",
+        xaxis=dict(rangeslider=dict(visible=True), type="date"),
+        template="plotly_white"
+    )
+
+    # Update the chart in the placeholder
+    chart_placeholder.plotly_chart(fig, use_container_width=True)
+
+    # Simulate new data
+    data = simulate_new_data(data)
+
+    # Pause for real-time simulation
+    time.sleep(5)
