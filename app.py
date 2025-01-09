@@ -26,78 +26,89 @@ st.set_page_config(page_title="Phân Tích Sản Phẩm và Báo Cáo Doanh Số
 # Sidebar navigation
 page = st.sidebar.selectbox("Chọn trang", ["Phân Tích Sản Phẩm", "Báo Cáo Tự Động Về Doanh Số"])
 
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+import time
+
+# Load the existing dataset
+current_day_sales = pd.read_csv('current_day_sales.csv')
+current_day_sales['Time'] = pd.to_datetime(current_day_sales['Time'])
+
+# Load data
+daily_sales = pd.read_csv('daily_sales.csv')
+cart_data = pd.read_csv('items_in_cart.csv')
+available_data = pd.read_csv('available_items.csv')
+
+# Convert dates
+daily_sales['Date'] = pd.to_datetime(daily_sales['Date'])
+
+platforms = current_day_sales['Platform'].unique()
+products = current_day_sales['Product'].unique()
+
+# Streamlit setup
+st.set_page_config(page_title="Phân Tích Sản Phẩm và Báo Cáo Doanh Số", layout="wide")
+
+# Sidebar navigation
+page = st.sidebar.selectbox("Chọn trang", ["Phân Tích Sản Phẩm", "Báo Cáo Tự Động Về Doanh Số"])
+
 if page == "Phân Tích Sản Phẩm":
     st.title("Phân Tích Sản Phẩm")
 
-    if 'Date' not in daily_sales.columns or 'Platform' not in daily_sales.columns or 'Daily Sales' not in daily_sales.columns:
-        st.error("Dữ liệu không hợp lệ. Vui lòng kiểm tra các cột trong file daily_sales.csv.")
-    else:
-        # Convert dates
-        daily_sales['Date'] = pd.to_datetime(daily_sales['Date'])
+    # Biểu đồ cột: Tổng số lượng bán ra theo tháng
+    daily_sales['Month'] = daily_sales['Date'].dt.to_period('M')
+    sales_by_month = daily_sales.groupby(['Month', 'Platform'])['Daily Sales'].sum().reset_index()
 
-        # Biểu đồ cột: Tổng số lượng bán ra theo tháng
-        daily_sales['Month'] = daily_sales['Date'].dt.to_period('M')
-        sales_by_month = daily_sales.groupby(['Month', 'Platform'])['Daily Sales'].sum().reset_index()
+    fig_bar = go.Figure()
+    for platform in sales_by_month['Platform'].unique():
+        platform_data = sales_by_month[sales_by_month['Platform'] == platform]
+        fig_bar.add_trace(go.Bar(
+            x=platform_data['Month'].astype(str),
+            y=platform_data['Daily Sales'],
+            name=platform
+        ))
 
-        if sales_by_month.empty:
-            st.warning("Không có dữ liệu để hiển thị biểu đồ.")
-        else:
-            fig_bar = go.Figure()
-            for platform in sales_by_month['Platform'].unique():
-                platform_data = sales_by_month[sales_by_month['Platform'] == platform]
-                fig_bar.add_trace(go.Bar(
-                    x=platform_data['Month'].astype(str),
-                    y=platform_data['Daily Sales'],
-                    name=platform
-                ))
+    fig_bar.update_layout(
+        title="Total Sales by Month and Platform",
+        xaxis_title="Month",
+        yaxis_title="Total Sales",
+        barmode='group',
+        xaxis=dict(tickangle=45),
+        margin=dict(l=20, r=20, t=50, b=20),
+        height=400,
+        width=800  # Điều chỉnh độ rộng biểu đồ
+    )
 
-            fig_bar.update_layout(
-                barmode='group',
-                title='Total Sales by Month and Platform',
-                xaxis_title='Month',
-                yaxis_title='Total Sales',
-                xaxis=dict(tickangle=45),
-                title_x=0.5,  # Canh giữa tiêu đề
-                margin=dict(l=20, r=20, t=50, b=20),  # Lề gọn hơn
-                height=400  # Chiều cao biểu đồ
-            )
-
-            # Hiển thị biểu đồ cột
-            st.plotly_chart(fig_bar, use_container_width=True)
+    # Hiển thị biểu đồ cột
+    st.plotly_chart(fig_bar, use_container_width=True)
 
     # Biểu đồ tròn: Phân phối sản phẩm trong giỏ hàng
     cart_data = pd.read_csv('items_in_cart.csv')
+    platforms = cart_data['Platform'].unique()
 
-    if 'Platform' not in cart_data.columns or 'Product' not in cart_data.columns or 'Items in Cart' not in cart_data.columns:
-        st.error("Dữ liệu không hợp lệ. Vui lòng kiểm tra các cột trong file items_in_cart.csv.")
-    else:
-        platforms = cart_data['Platform'].unique()
+    fig_pie_row = []
+    for platform in platforms:
+        platform_cart = cart_data[cart_data['Platform'] == platform]
+        items_in_cart = platform_cart.groupby('Product')['Items in Cart'].sum().reset_index()
 
-        for platform in platforms:
-            platform_cart = cart_data[cart_data['Platform'] == platform]
-            items_in_cart = platform_cart.groupby('Product')['Items in Cart'].sum().reset_index()
+        fig_pie = go.Figure(data=[
+            go.Pie(labels=items_in_cart['Product'], values=items_in_cart['Items in Cart'], hole=0.3)
+        ])
+        fig_pie.update_layout(
+            title=f"Cart Distribution on {platform}",
+            margin=dict(l=10, r=10, t=50, b=10),
+            height=350,
+            width=350
+        )
+        fig_pie_row.append(fig_pie)
 
-            if items_in_cart.empty:
-                st.warning(f"Không có dữ liệu cho {platform}.")
-            else:
-                fig_pie = go.Figure(
-                    data=[go.Pie(
-                        labels=items_in_cart['Product'],
-                        values=items_in_cart['Items in Cart'],
-                        textinfo='label+percent',
-                        insidetextorientation='radial'
-                    )]
-                )
-
-                fig_pie.update_layout(
-                    title=f'Cart Distribution on {platform}',
-                    title_x=0.5,  # Canh giữa tiêu đề
-                    margin=dict(l=20, r=20, t=50, b=20),  # Lề gọn
-                    height=400  # Chiều cao biểu đồ
-                )
-
-                # Hiển thị từng biểu đồ tròn
-                st.plotly_chart(fig_pie, use_container_width=True)
+    # Hiển thị 3 biểu đồ tròn trên cùng một hàng ngang
+    st.write("### Phân phối sản phẩm trong giỏ hàng")
+    cols = st.columns(len(fig_pie_row))
+    for col, fig in zip(cols, fig_pie_row):
+        with col:
+            st.plotly_chart(fig, use_container_width=False)
 
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
