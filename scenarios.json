@@ -129,10 +129,10 @@
             "Tuần 4: Tổng kết chiến dịch, đánh giá và tối ưu hóa quảng cáo."
         ],
         "promotion": "Flash Sale 30% cho toàn bộ sản phẩm vào ngày 20 và 25 hàng tháng.",
-        "expected": {
+        "expected": 
             "doanh_thu": "200 triệu VND",
             "hoa_hong": "35 triệu VND"
-        },
+        ,
         "risks": {
             "Nội dung livestream không hấp dẫn": "Tăng thêm các chương trình mini-game, giveaway trong livestream.",
             "Đối thủ cạnh tranh mạnh": "Thực hiện các chương trình khuyến mãi độc quyền chỉ áp dụng trong livestream."
