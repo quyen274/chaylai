@@ -49,8 +49,8 @@ if page == "Phân Tích Sản Phẩm":
         barmode='group',
         xaxis=dict(tickangle=45),
         margin=dict(l=20, r=20, t=50, b=20),
-        height=400,
-        width=800  # Điều chỉnh độ rộng biểu đồ
+        height=700,
+        width=400  # Điều chỉnh độ rộng biểu đồ
     )
 
     # Hiển thị biểu đồ cột
