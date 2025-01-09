@@ -43,7 +43,8 @@ sales_by_product = {product: 100 / len(products) for product in products}
 
 # Placeholder for KPI and Pie charts
 kpi_placeholder = st.empty()
-col1, col2 = st.columns(2)  
+pie_placeholder1 = st.empty()
+pie_placeholder2 = st.empty()
 chart_placeholder = st.empty()
 
 def update_kpis_and_pies():
@@ -88,9 +89,9 @@ def update_kpis_and_pies():
     fig2.update_layout(title="Số Lượng Bán Theo Loại Sản Phẩm")
 
     # Display updated Pie charts
-    with col1:
+    with pie_placeholder1.container():
         st.plotly_chart(fig1, use_container_width=True)
-    with col2:
+    with pie_placeholder2.container():
         st.plotly_chart(fig2, use_container_width=True)
 
 # Prepare data for visualization
@@ -167,4 +168,3 @@ while True:
 
     # Pause for real-time simulation
     time.sleep(5)
-
