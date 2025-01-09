@@ -21,31 +21,44 @@ page = st.sidebar.selectbox("Chọn trang", ["Phân Tích Sản Phẩm", "Báo C
 if page == "Phân Tích Sản Phẩm":
     st.title("Phân Tích Sản Phẩm")
 
-    # 1. Slice Biểu đồ tổng số lượng bán ra theo tháng
-    daily_sales['Month'] = daily_sales['Date'].dt.to_period('M')
-    sales_by_month = daily_sales.groupby(['Month', 'Platform'])['Daily Sales'].sum().unstack()
+    if 'Date' in daily_sales.columns:
+    try:
+        daily_sales['Date'] = pd.to_datetime(daily_sales['Date'], errors='coerce')
+        if daily_sales['Date'].isnull().any():
+            raise ValueError("Some dates could not be parsed. Please check the data format.")
+    except Exception as e:
+        st.error(f"Error converting 'Date' column to datetime: {e}")
+        st.stop()
+else:
+    st.error("The 'Date' column is missing from the daily_sales.csv file.")
+    st.stop()
 
-    fig, ax = plt.subplots(figsize=(8, 4))  # Adjusted size
-    sales_by_month.plot(kind='bar', ax=ax, colormap='viridis')
-    ax.set_title('Total Sales by Month and Platform')
-    ax.set_xlabel('Month')
-    ax.set_ylabel('Total Sales')
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
-    ax.legend(title='Platform')
-    st.pyplot(fig)
+# 1. Slice Biểu đồ tổng số lượng bán ra theo tháng
+daily_sales['Month'] = daily_sales['Date'].dt.to_period('M')
+sales_by_month = daily_sales.groupby(['Month', 'Platform'])['Daily Sales'].sum().unstack()
 
-    # 2. Pie Chart: Sản phẩm trong giỏ hàng
-    platforms = cart_data['Platform'].unique()
-    fig, axes = plt.subplots(1, len(platforms), figsize=(12, 4))  # Adjusted size
-    for i, platform in enumerate(platforms):
-        platform_cart = cart_data[cart_data['Platform'] == platform]
-        items_in_cart = platform_cart.groupby('Product')['Items in Cart'].sum()
-        items_in_cart.plot(kind='pie', autopct='%1.1f%%', ax=axes[i])
-        axes[i].set_title(f'Cart Distribution on {platform}')
-        axes[i].set_ylabel('')
+fig, ax = plt.subplots(figsize=(8, 4))  # Giảm kích thước biểu đồ
+sales_by_month.plot(kind='bar', ax=ax, colormap='viridis')
+ax.set_title('Total Sales by Month and Platform')
+ax.set_xlabel('Month')
+ax.set_ylabel('Total Sales')
+ax.set_xticks(range(len(sales_by_month.index)))
+ax.set_xticklabels(sales_by_month.index, rotation=45)
+ax.legend(title='Platform')
+st.pyplot(fig)
 
-    plt.suptitle('Product Distribution in Carts by Platform')
-    st.pyplot(fig)
+# 2. Pie Chart: Sản phẩm trong giỏ hàng
+platforms = cart_data['Platform'].unique()
+fig, axes = plt.subplots(1, len(platforms), figsize=(12, 4))  # Giảm kích thước biểu đồ
+for i, platform in enumerate(platforms):
+    platform_cart = cart_data[cart_data['Platform'] == platform]
+    items_in_cart = platform_cart.groupby('Product')['Items in Cart'].sum()
+    items_in_cart.plot(kind='pie', autopct='%1.1f%%', ax=axes[i])
+    axes[i].set_title(f'Cart Distribution on {platform}')
+    axes[i].set_ylabel('')
+
+plt.suptitle('Product Distribution in Carts by Platform')
+st.pyplot(fig)
 
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
