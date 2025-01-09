@@ -11,16 +11,12 @@ current_day_sales['Time'] = pd.to_datetime(current_day_sales['Time'])
 platforms = current_day_sales['Platform'].unique()
 products = current_day_sales['Product'].unique()
 
-# Fake product prices (random from 150k to 300k VND)
-if 'prices' not in st.session_state:
-    st.session_state['prices'] = {product: np.random.randint(150000, 300001) for product in products}
-
 # Initialize session state to retain past data
 if 'data' not in st.session_state:
     st.session_state['data'] = current_day_sales.copy()
 
 if 'total_sales' not in st.session_state:
-    st.session_state['total_sales'] = 0
+    st.session_state['total_sales'] = current_day_sales['Sales (15 min)'].sum()
 
 # Streamlit setup
 st.title('Báo Cáo Tự Động Về Doanh Số')
@@ -42,12 +38,7 @@ def simulate_new_data(data):
     for platform in platforms:
         for product in products:
             sales_15_min = np.random.randint(1, 20)
-            new_data.append({
-                'Time': latest_time,
-                'Platform': platform,
-                'Product': product,
-                'Sales (15 min)': sales_15_min
-            })
+            new_data.append({'Time': latest_time, 'Platform': platform, 'Product': product, 'Sales (15 min)': sales_15_min})
     new_df = pd.DataFrame(new_data)
     return pd.concat([data, new_df], ignore_index=True)
 
@@ -56,8 +47,7 @@ st.session_state['data'] = simulate_new_data(st.session_state['data'])
 filtered_data = filter_data(st.session_state['data'], selected_platforms, selected_products)
 
 # Calculate KPIs
-filtered_data['Revenue'] = filtered_data['Product'].map(st.session_state['prices']) * filtered_data['Sales (15 min)']
-total_sales = filtered_data['Revenue'].sum()
+total_sales = filtered_data['Sales (15 min)'].sum()
 total_cost = total_sales * 0.6  # Giả sử 60% doanh số là chi phí
 total_profit = total_sales - total_cost
 
@@ -87,44 +77,71 @@ def prepare_data(data):
     )
     return pivot_data
 
-# Prepare data for the main chart
-pivot_data = prepare_data(filtered_data)
-if len(pivot_data) > zoom_level:
-    visible_data = pivot_data.iloc[-zoom_level:]
-else:
-    visible_data = pivot_data
+# Adjust the dataset time
+def adjust_time(data):
+    min_time = data['Time'].min()
+    current_time = pd.Timestamp.now().replace(second=0, microsecond=0)
+    time_diff = current_time - min_time
+    data['Time'] = data['Time'] + time_diff
+    return data
 
-# Main chart
-fig3 = go.Figure()
+current_day_sales = adjust_time(current_day_sales)
 
-# Add stacked bar traces
-for platform in selected_platforms:
-    if platform in visible_data.columns:
-        fig3.add_trace(go.Bar(
-            x=visible_data.index,
-            y=visible_data[platform],
-            name=platform
-        ))
+# Placeholder for the chart
+chart_placeholder = st.empty()
 
-# Add line traces
-cumulative_data = visible_data.cumsum(axis=1)
-for i, platform in enumerate(selected_platforms):
-    if platform in cumulative_data.columns:
-        fig3.add_trace(go.Scatter(
-            x=visible_data.index,
-            y=cumulative_data[platform],
-            mode='lines+markers',
-            name=f"{platform} (Đường)"
-        ))
+data = st.session_state['data']
 
-fig3.update_layout(
-    barmode='stack',
-    title="Biểu Đồ Doanh Số Theo Thời Gian",
-    xaxis_title="Thời Gian",
-    yaxis_title="Doanh Số",
-    xaxis=dict(rangeslider=dict(visible=True), type="date"),
-    template="plotly_white"
-)
+while True:
+    # Filter data based on user selections
+    filtered_data = filter_data(data, selected_platforms, selected_products)
 
-# Display the main chart
-st.plotly_chart(fig3, use_container_width=True)
+    # Prepare data for chart
+    pivot_data = prepare_data(filtered_data)
+
+    # Select visible data based on zoom level
+    if len(pivot_data) > zoom_level:
+        visible_data = pivot_data.iloc[-zoom_level:]
+    else:
+        visible_data = pivot_data
+
+    # Create Plotly figure
+    fig = go.Figure()
+
+    # Add stacked bar traces
+    for platform in selected_platforms:
+        if platform in visible_data.columns:
+            fig.add_trace(go.Bar(
+                x=visible_data.index,
+                y=visible_data[platform],
+                name=platform
+            ))
+
+    # Add line traces
+    cumulative_data = visible_data.cumsum(axis=1)
+    for i, platform in enumerate(selected_platforms):
+        if platform in cumulative_data.columns:
+            fig.add_trace(go.Scatter(
+                x=visible_data.index,
+                y=cumulative_data[platform],
+                mode='lines+markers',
+                name=f"{platform} (Đường)"
+            ))
+
+    fig.update_layout(
+        barmode='stack',
+        title="Biểu Đồ Doanh Số Theo Thời Gian",
+        xaxis_title="Thời Gian",
+        yaxis_title="Doanh Số",
+        xaxis=dict(rangeslider=dict(visible=True), type="date"),
+        template="plotly_white"
+    )
+
+    # Update the chart in the placeholder
+    chart_placeholder.plotly_chart(fig, use_container_width=True)
+
+    # Simulate new data
+    data = simulate_new_data(data)
+
+    # Pause for real-time simulation
+    time.sleep(5)
