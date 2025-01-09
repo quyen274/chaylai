@@ -88,30 +88,14 @@ def update_kpis_and_pies():
     fig2 = go.Figure(data=[go.Pie(labels=product_labels, values=product_values)])
     fig2.update_layout(title="Số Lượng Bán Theo Loại Sản Phẩm")
 
-    # Inject CSS for layout control
-    st.markdown("""
-        <style>
-        .container {
-            display: flex;
-            justify-content: space-around;
-        }
-        .chart {
-            flex: 1;
-            margin: 0 10px;
-        }
-        </style>
-        <div class="container">
-            <div class="chart" id="pie1"></div>
-            <div class="chart" id="pie2"></div>
-        </div>
-    """, unsafe_allow_html=True)
-
     # Embed the charts into the defined div
     st.markdown(
-        f'<script>'
-        f'document.getElementById("pie1").innerHTML = `{fig1.to_html(full_html=False)}`;'
-        f'document.getElementById("pie2").innerHTML = `{fig2.to_html(full_html=False)}`;'
-        f'</script>',
+        f"""
+        <script>
+        document.getElementById("pie_chart_1").innerHTML = `{fig1.to_html(full_html=False)}`;
+        document.getElementById("pie_chart_2").innerHTML = `{fig2.to_html(full_html=False)}`;
+        </script>
+        """,
         unsafe_allow_html=True
     )
 
