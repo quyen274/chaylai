@@ -7,7 +7,54 @@ import time
 # Load the existing dataset
 current_day_sales = pd.read_csv('current_day_sales.csv')
 current_day_sales['Time'] = pd.to_datetime(current_day_sales['Time'])
+# Streamlit setup
+st.title('Báo Cáo Tự Động Về Doanh Số')
+st.write("Hiển thị doanh số, lợi nhuận và thông tin liên quan.")
 
+# Calculate KPIs
+total_sales = current_day_sales['Sales (15 min)'].sum()
+total_cost = total_sales * 0.6  # Giả sử 60% doanh số là chi phí
+total_profit = total_sales - total_cost
+
+# Display KPIs
+st.metric("Tổng Doanh Thu", f"${total_sales / 1e6:.2f}M", delta=f"+{total_sales / 1e6:.1f}M")
+st.metric("Tổng Lợi Nhuận", f"${total_profit / 1e6:.2f}M", delta=f"-{total_cost / 1e6:.1f}M")
+
+# Pie chart: Số lượng bán trên từng sàn
+sales_by_platform = current_day_sales.groupby('Platform')['Sales (15 min)'].sum()
+fig1 = go.Figure(data=[go.Pie(labels=sales_by_platform.index, values=sales_by_platform.values)])
+fig1.update_layout(title="Số Lượng Bán Theo Sàn")
+
+# Pie chart: Số lượng bán theo loại sản phẩm
+sales_by_product = current_day_sales.groupby('Product')['Sales (15 min)'].sum()
+fig2 = go.Figure(data=[go.Pie(labels=sales_by_product.index, values=sales_by_product.values)])
+fig2.update_layout(title="Số Lượng Bán Theo Loại Sản Phẩm")
+
+# Display charts
+st.plotly_chart(fig1, use_container_width=True)
+st.plotly_chart(fig2, use_container_width=True)
+
+# Main chart: Doanh số theo thời gian
+grouped = current_day_sales.groupby(['Time', 'Platform']).sum().unstack(fill_value=0)
+fig3 = go.Figure()
+
+for platform in grouped['Sales (15 min)']:
+    fig3.add_trace(go.Scatter(
+        x=grouped.index,
+        y=grouped['Sales (15 min)', platform],
+        mode='lines+markers',
+        name=platform
+    ))
+
+fig3.update_layout(
+    title="Doanh Số Theo Thời Gian",
+    xaxis_title="Thời Gian",
+    yaxis_title="Doanh Số",
+    template="plotly_white"
+)
+
+# Display the main chart
+st.plotly_chart(fig3, use_container_width=True)
 platforms = current_day_sales['Platform'].unique()
 products = current_day_sales['Product'].unique()
 
