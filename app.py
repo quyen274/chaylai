@@ -43,16 +43,12 @@ sales_by_product = {product: 100 / len(products) for product in products}
 
 # Placeholder for KPI and Pie charts
 kpi_placeholder = st.empty()
-chart_placeholders = st.columns(2)
+pie_placeholder1 = st.empty()
+pie_placeholder2 = st.empty()
 chart_placeholder = st.empty()
-
-# Initialize previous values for percentage change
-previous_sales_by_platform = sales_by_platform.copy()
-previous_sales_by_product = sales_by_product.copy()
 
 def update_kpis_and_pies():
     global current_revenue, current_cost, sales_by_platform, sales_by_product
-    global previous_sales_by_platform, previous_sales_by_product
 
     # Update revenue and cost
     current_revenue += 150_000  # Increase revenue every 5 seconds
@@ -92,10 +88,10 @@ def update_kpis_and_pies():
     fig2 = go.Figure(data=[go.Pie(labels=product_labels, values=product_values)])
     fig2.update_layout(title="Số Lượng Bán Theo Loại Sản Phẩm")
 
-    # Update Pie Charts in Place
-    with chart_placeholders[0]:
+    # Display updated Pie charts
+    with pie_placeholder1.container():
         st.plotly_chart(fig1, use_container_width=True)
-    with chart_placeholders[1]:
+    with pie_placeholder2.container():
         st.plotly_chart(fig2, use_container_width=True)
 
 # Prepare data for visualization
