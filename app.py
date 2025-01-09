@@ -143,68 +143,7 @@ if page == "Phân Tích Sản Phẩm":
         with cols[i % len(cols)]:
             st.plotly_chart(fig, use_container_width=True)
     
-        st.subheader("Kế Hoạch Chi Phí Cho Affiliate Marketing")
-        # Define cost breakdown
-        categories = [
-            "Giảm giá sản phẩm",
-            "Quảng cáo livestream",
-            "Livestream hàng ngày",
-            "Chạy bài quảng cáo",
-            "Kịch bản nội dung",
-            "Phí phát sinh"
-        ]
-        
-        min_costs = [5, 5, 0, 5, 5, 2]  # Minimum costs in millions (VND)
-        max_costs = [10, 5, 0, 5, 5, 5]  # Maximum costs in millions (VND)
-        
-        # Convert to DataFrame for visualization
-        cost_data = pd.DataFrame({
-            "Danh mục": categories,
-            "Chi phí tối thiểu (triệu VND)": min_costs,
-            "Chi phí tối đa (triệu VND)": max_costs
-        })
-        
-        # Bar chart for cost breakdown
-        fig = go.Figure()
-        fig.add_trace(go.Bar(
-            x=cost_data["Danh mục"],
-            y=cost_data["Chi phí tối thiểu (triệu VND)"],
-            name="Chi phí tối thiểu",
-            marker_color='rgba(55, 128, 191, 0.7)'
-        ))
-        fig.add_trace(go.Bar(
-            x=cost_data["Danh mục"],
-            y=cost_data["Chi phí tối đa (triệu VND)"],
-            name="Chi phí tối đa",
-            marker_color='rgba(255, 153, 51, 0.7)'
-        ))
-        
-        # Customize layout
-        fig.update_layout(
-            title="Phân Bổ Ngân Sách Affiliate Marketing",
-            xaxis_title="Danh mục",
-            yaxis_title="Chi phí (triệu VND)",
-            barmode='group',
-            height=400,
-            margin=dict(l=20, r=20, t=50, b=20)
-        )
-        
-        # Display chart
-        st.plotly_chart(fig, use_container_width=True)
-        
-        # Explanation Section
-        st.markdown("""
-        ### Chi Tiết Kế Hoạch Chi Phí
-        
-        - **Giảm giá sản phẩm (5-10 triệu):** Hỗ trợ giảm giá để kích cầu, tăng số lượng đơn hàng.
-        - **Quảng cáo livestream (5 triệu):** Tăng khả năng tiếp cận khách hàng thông qua quảng cáo trên các nền tảng livestream.
-        - **Livestream hàng ngày:** Tận dụng livestream để tương tác với khách hàng, không tính phí nếu tự làm.
-        - **Chạy bài quảng cáo (5 triệu):** Quảng cáo bài viết trên Facebook, TikTok để tiếp cận khách hàng mới.
-        - **Kịch bản nội dung (5 triệu):** Đầu tư vào nội dung bài viết và livestream chuyên nghiệp.
-        - **Phí phát sinh (2-5 triệu):** Dự trù ngân sách cho các trường hợp không lường trước.
-        
-        #### Tổng Ngân Sách: **22 - 35 triệu đồng**
-        """)
+       
             
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
