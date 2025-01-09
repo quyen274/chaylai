@@ -53,24 +53,20 @@ if "fig1_placeholder" not in st.session_state:
 if "fig2_placeholder" not in st.session_state:
     st.session_state["fig2_placeholder"] = st.empty()
 
-# Tạo placeholders cho 2 biểu đồ tròn
-pie_placeholder1, pie_placeholder2 = st.columns(2)
-
-# Hàm cập nhật KPI và biểu đồ
 def update_kpis_and_pies():
     global current_revenue, current_cost, sales_by_platform, sales_by_product
 
-    # Cập nhật doanh thu và chi phí
-    current_revenue += 150_000  # Tăng doanh thu mỗi 5 giây
-    current_cost = current_revenue * 0.6  # Chi phí là 60% doanh thu
+    # Update revenue and cost
+    current_revenue += 150_000  # Increase revenue every 5 seconds
+    current_cost = current_revenue * 0.6  # Cost is 60% of revenue
     profit = current_revenue - current_cost
 
-    # Hiển thị KPIs
+    # Display KPIs
     with kpi_placeholder.container():
         st.metric("Tổng Doanh Thu", f"${current_revenue / 1e6:.2f}M", delta=f"+0.15M")
         st.metric("Tổng Lợi Nhuận", f"${profit / 1e6:.2f}M", delta=f"+{(150_000 - 150_000 * 0.6) / 1e6:.2f}M")
 
-    # Cập nhật biểu đồ tròn: Số lượng bán trên từng sàn
+    # Update Pie chart: Số lượng bán trên từng sàn
     platform_total = sum(sales_by_platform.values())
     for platform in sales_by_platform:
         sales_by_platform[platform] += np.random.uniform(0.1, 2.0)
@@ -78,13 +74,13 @@ def update_kpis_and_pies():
     for platform in sales_by_platform:
         sales_by_platform[platform] = (sales_by_platform[platform] / platform_total_new) * 100
 
-    # Tạo biểu đồ tròn: Số lượng bán trên từng sàn
+    # Create Pie Chart: Sales by Platform
     platform_labels = list(sales_by_platform.keys())
     platform_values = list(sales_by_platform.values())
     fig1 = go.Figure(data=[go.Pie(labels=platform_labels, values=platform_values)])
     fig1.update_layout(title="Số Lượng Bán Theo Sàn")
 
-    # Cập nhật biểu đồ tròn: Số lượng bán theo loại sản phẩm
+    # Update Pie chart: Số lượng bán theo loại sản phẩm
     product_total = sum(sales_by_product.values())
     for product in sales_by_product:
         sales_by_product[product] += np.random.uniform(0.5, 1.0)
@@ -92,17 +88,18 @@ def update_kpis_and_pies():
     for product in sales_by_product:
         sales_by_product[product] = (sales_by_product[product] / product_total_new) * 100
 
-    # Tạo biểu đồ tròn: Số lượng bán theo loại sản phẩm
+    # Create Pie Chart: Sales by Product
     product_labels = list(sales_by_product.keys())
     product_values = list(sales_by_product.values())
     fig2 = go.Figure(data=[go.Pie(labels=product_labels, values=product_values)])
     fig2.update_layout(title="Số Lượng Bán Theo Loại Sản Phẩm")
 
-    # Hiển thị biểu đồ trong các placeholder
-    with pie_placeholder1:
-        st.plotly_chart(fig1, use_container_width=True)
-    with pie_placeholder2:
-        st.plotly_chart(fig2, use_container_width=True)
+    # Update the Pie Charts directly
+    with st.columns(2)[0]:  # First column for the first pie chart
+        st.session_state["fig1_placeholder"].plotly_chart(fig1, use_container_width=True)
+    with st.columns(2)[1]:  # Second column for the second pie chart
+        st.session_state["fig2_placeholder"].plotly_chart(fig2, use_container_width=True)
+
 
 
 # Prepare data for visualization
