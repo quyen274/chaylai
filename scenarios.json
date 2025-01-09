@@ -1,0 +1,162 @@
+[
+    {
+        "title": "Kịch bản 1: Ngân sách dưới 5 triệu",
+        "objective": "Xây dựng nền tảng cơ bản cho Affiliate bằng cách tận dụng chi phí thấp.",
+        "allocation": {
+            "Giảm giá sản phẩm": "2 triệu VND",
+            "Quảng cáo livestream": "1 triệu VND",
+            "Quảng cáo bài viết": "1 triệu VND",
+            "Kịch bản nội dung": "1 triệu VND"
+        },
+        "schedule": [
+            "Livestream 2 lần/tuần (19:00 - 20:00) trên TikTok.",
+            "Đăng bài viết 1 bài/ngày trên Facebook."
+        ],
+        "promotion": "Mua 2 tặng 1 áp dụng cho combo búp bê giá rẻ.",
+        "expected": "Hoa hồng: 10-15 triệu VND."
+    },
+    {
+        "title": "Kịch bản 2: Ngân sách từ 5-10 triệu",
+        "objective": "Tăng doanh số thông qua livestream và các chương trình giảm giá combo.",
+        "allocation": {
+            "Giảm giá sản phẩm": "3 triệu VND",
+            "Quảng cáo livestream": "2 triệu VND",
+            "Quảng cáo bài viết": "2 triệu VND",
+            "Kịch bản nội dung": "1 triệu VND"
+        },
+        "schedule": [
+            "Livestream 3 lần/tuần (20:00 - 21:00).",
+            "Tổ chức livestream Flash Sale vào ngày cuối tuần."
+        ],
+        "promotion": "Giảm giá giờ vàng: 15% từ 12:00 - 14:00.",
+        "expected": "Hoa hồng: 15-20 triệu VND."
+    },
+    {
+        "title": "Kịch bản 3: Ngân sách từ 10-15 triệu",
+        "objective": "Đẩy mạnh doanh số bằng cách tập trung livestream và quảng cáo chuyên nghiệp.",
+        "allocation": {
+            "Giảm giá sản phẩm": "5 triệu VND",
+            "Quảng cáo livestream": "3 triệu VND",
+            "Quảng cáo bài viết": "3 triệu VND",
+            "Kịch bản nội dung": "2 triệu VND"
+        },
+        "schedule": [
+            "Livestream 4 lần/tuần (90 phút/buổi).",
+            "Kết hợp livestream với minigame để tăng tương tác."
+        ],
+        "promotion": "Combo búp bê giảm 20%, tặng thêm phụ kiện.",
+        "expected": "Hoa hồng: 25-30 triệu VND."
+    },
+    {
+        "title": "Kịch bản 4: Ngân sách từ 20-25 triệu",
+        "objective": "Tăng mạnh doanh số qua chiến dịch quảng cáo livestream và bài viết.",
+        "allocation": {
+            "Giảm giá sản phẩm": "7 triệu VND",
+            "Quảng cáo livestream": "5 triệu VND",
+            "Quảng cáo bài viết": "5 triệu VND",
+            "Kịch bản nội dung": "3 triệu VND"
+        },
+        "schedule": [
+            "Livestream 5 lần/tuần (90 phút/buổi).",
+            "Đăng bài viết quảng cáo 3 bài/ngày, kết hợp hình ảnh và video."
+        ],
+        "promotion": "Giảm giá 25% trong ngày đôi (11/11).",
+        "expected": "Hoa hồng: 40-50 triệu VND."
+    },
+    {
+        "title": "Kịch bản 5: Ngân sách từ 30-40 triệu",
+        "objective": "Đẩy mạnh doanh số thông qua livestream và bài viết quảng cáo chuyên nghiệp.",
+        "allocation": {
+            "Giảm giá sản phẩm": "10 triệu VND",
+            "Quảng cáo livestream": "8 triệu VND",
+            "Quảng cáo bài viết": "10 triệu VND",
+            "Kịch bản nội dung": "5 triệu VND"
+        },
+        "schedule": [
+            "Livestream 6 lần/tuần, nhấn mạnh ưu đãi độc quyền trên livestream.",
+            "Đăng bài viết quảng cáo 3 bài/tuần với hình ảnh chuyên nghiệp."
+        ],
+        "promotion": "Giảm giá 20% khi mua combo và tặng quà nhỏ.",
+        "expected": "Hoa hồng: 60-70 triệu VND."
+    },
+    {
+        "title": "Kịch bản 6: Ngân sách từ 40-50 triệu",
+        "objective": "Tăng mạnh doanh số qua các chương trình giảm giá lớn và livestream kéo dài.",
+        "allocation": {
+            "Giảm giá sản phẩm": "12 triệu VND",
+            "Quảng cáo livestream": "10 triệu VND",
+            "Quảng cáo bài viết": "10 triệu VND",
+            "Kịch bản nội dung": "8 triệu VND"
+        },
+        "schedule": [
+            "Livestream mỗi ngày trong tháng, tập trung vào các sản phẩm hot.",
+            "Đăng bài viết quảng cáo 2 bài/ngày trên Facebook và TikTok."
+        ],
+        "promotion": "Giảm giá 25% cho dòng sản phẩm hot.",
+        "expected": "Hoa hồng: 70-80 triệu VND."
+    },
+    {
+        "title": "Kịch bản 7: Ngân sách từ 50-60 triệu",
+        "objective": "Tăng doanh số bằng cách kết hợp livestream, bài đăng và giảm giá mạnh.",
+        "allocation": {
+            "Giảm giá sản phẩm": "15 triệu VND",
+            "Quảng cáo livestream": "15 triệu VND",
+            "Quảng cáo bài viết": "15 triệu VND",
+            "Kịch bản nội dung": "10 triệu VND"
+        },
+        "schedule": [
+            "Livestream mỗi ngày, tạo các chương trình giảm giá độc quyền trong livestream.",
+            "Đăng bài quảng cáo hàng ngày với nội dung kêu gọi hành động."
+        ],
+        "promotion": "Tặng voucher 50k khi mua trên 500k.",
+        "expected": "Hoa hồng: 80-90 triệu VND."
+    },
+    {
+        "title": "Kịch bản 8: Ngân sách 60 triệu",
+        "objective": "Tối ưu hóa doanh số và nhận diện thương hiệu thông qua livestream chuyên nghiệp và chiến dịch bài viết.",
+        "allocation": {
+            "Giảm giá sản phẩm": "20 triệu VND",
+            "Quảng cáo livestream": "20 triệu VND",
+            "Quảng cáo bài viết": "15 triệu VND",
+            "Kịch bản nội dung": "5 triệu VND"
+        },
+        "schedule": [
+            "Livestream mỗi ngày trong khung giờ vàng (12:00 và 20:00).",
+            "Tăng cường bài viết quảng cáo với nội dung chia sẻ giá trị sản phẩm."
+        ],
+        "promotion": "Giảm giá 35% trong ngày đôi (11/11) và tặng quà đi kèm.",
+        "expected": "Hoa hồng: 80-90 triệu VND."
+    },
+    {
+        "title": "Kịch bản 9: Ngân sách 70 triệu",
+        "objective": "Chạy chiến dịch giảm giá lớn và livestream chuyên sâu trên TikTok và Shopee.",
+        "allocation": {
+            "Giảm giá sản phẩm": "25 triệu VND",
+            "Quảng cáo livestream": "20 triệu VND",
+            "Quảng cáo bài viết": "20 triệu VND",
+            "Kịch bản nội dung": "5 triệu VND"
+        },
+        "schedule": [
+            "Livestream mỗi ngày với các chủ đề hấp dẫn, tặng mã giảm giá cho khách hàng xem livestream.",
+            "Đăng bài viết quảng cáo 2 bài/ngày vào khung giờ cao điểm."
+        ],
+        "promotion": "Flash sale giảm giá 35% trong khung giờ 20:00-22:00.",
+        "expected": "Hoa hồng: 80-90 triệu VND."
+    },
+    {
+        "title": "Kịch bản 10: Ngân sách 80 triệu",
+        "objective": "Đẩy mạnh doanh số thông qua livestream dài và bài viết quảng cáo thường xuyên.",
+        "allocation": {
+            "Giảm giá sản phẩm": "30 triệu VND",
+            "Quảng cáo livestream": "25 triệu VND",
+            "Quảng cáo bài viết": "20 triệu VND",
+            "Kịch bản nội dung": "5 triệu VND"
+        },
+        "schedule": [
+            "Livestream mỗi ngày trong khung giờ vàng, kết hợp các trò chơi để giữ chân khách hàng.",
+            "Chạy bài viết quảng cáo dạng video trên TikTok và Instagram 2 lần/ngày."
+        ],
+        "promotion": "Mua combo giảm giá 35%, tặng thêm quà phụ kiện khi mua trên 1 triệu.",
+        "expected": "Hoa hồng: 80-90 triệu VND."
+    }
+]
