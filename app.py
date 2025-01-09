@@ -93,31 +93,31 @@ def update_kpis_and_pies():
         st.plotly_chart(fig1, use_container_width=True)
     with pie_placeholder2.container():
         st.plotly_chart(fig2, use_container_width=True)
- st.markdown("""
-        <style>
-        .container {
-            display: flex;
-            justify-content: space-around;
-        }
-        .chart {
-            flex: 1;
-            margin: 0 10px;
-        }
-        </style>
-        <div class="container">
-            <div class="chart" id="pie1"></div>
-            <div class="chart" id="pie2"></div>
-        </div>
-    """, unsafe_allow_html=True)
-
-    # Embed the charts into the defined div
-    st.markdown(
-        f'<script>'
-        f'document.getElementById("pie1").innerHTML = `{fig1.to_html(full_html=False)}`;'
-        f'document.getElementById("pie2").innerHTML = `{fig2.to_html(full_html=False)}`;'
-        f'</script>',
-        unsafe_allow_html=True
-    )
+     st.markdown("""
+            <style>
+            .container {
+                display: flex;
+                justify-content: space-around;
+            }
+            .chart {
+                flex: 1;
+                margin: 0 10px;
+            }
+            </style>
+            <div class="container">
+                <div class="chart" id="pie1"></div>
+                <div class="chart" id="pie2"></div>
+            </div>
+        """, unsafe_allow_html=True)
+    
+        # Embed the charts into the defined div
+        st.markdown(
+            f'<script>'
+            f'document.getElementById("pie1").innerHTML = `{fig1.to_html(full_html=False)}`;'
+            f'document.getElementById("pie2").innerHTML = `{fig2.to_html(full_html=False)}`;'
+            f'</script>',
+            unsafe_allow_html=True
+        )
 
 # Prepare data for visualization
 def prepare_data(data):
