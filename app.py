@@ -154,24 +154,6 @@ if page == "Phân Tích Sản Phẩm":
     if page == "Phân Tích Sản Phẩm":
         st.title("Định Hướng Chiến Dịch Affiliate")
     
-        # Generate the plan
-        suggestions = generate_affiliate_plan(daily_sales, products, platforms)
-    
-        # Hiển thị bảng gợi ý
-        st.write("### Kế Hoạch Đầu Tư Chiến Dịch Affiliate")
-        st.markdown(
-            """
-            **Tối ưu hóa chiến dịch Affiliate là chìa khóa để đạt doanh số vượt kỳ vọng.**
-            Dưới đây là kế hoạch đầu tư chi tiết, được thiết kế dựa trên dữ liệu thực tế
-            để bạn đạt hiệu quả tối đa:
-            """
-        )
-        for suggestion in suggestions:
-            st.subheader(suggestion['Hạng mục'])
-            st.write(f"**Ngân sách:** {suggestion['Ngân sách']}")
-            st.caption(suggestion['Chi tiết'])
-        if "current_scenario_index" not in st.session_state:
-            st.session_state["current_scenario_index"] = 0
 
         # Hiển thị kịch bản hiện tại
         scenario = scenarios[st.session_state["current_scenario_index"]]
