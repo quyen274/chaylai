@@ -143,74 +143,75 @@ if page == "Phân Tích Sản Phẩm":
         with cols[i % len(cols)]:
             st.plotly_chart(fig, use_container_width=True)
 
+    
     # Tính toán chi phí và gợi ý chiến dịch Affiliate
-def generate_affiliate_plan(sales_data, products, platforms):
-    """
-    Generate an Affiliate plan with recommendations for cost allocation.
-    """
-    total_sales = sales_data['Daily Sales'].sum()
-    product_sales = sales_data.groupby('Product')['Daily Sales'].sum()
-
-    # Ngân sách đề xuất (giả định tổng ngân sách từ 20-35 triệu)
-    total_budget = np.random.randint(20_000_000, 35_000_000)
-
-    # Chi phí phân bổ
-    discount_budget = np.random.randint(5_000_000, 10_000_000)  # Giảm giá sản phẩm
-    livestream_ads = 5_000_000  # Quảng cáo livestream
-    post_ads = 5_000_000  # Chạy quảng cáo bài viết
-    script_budget = 5_000_000  # Kịch bản livestream và bài đăng
-    remaining_budget = total_budget - (discount_budget + livestream_ads + post_ads + script_budget)
-
-    # Gợi ý nội dung chuyên nghiệp và hấp dẫn
-    suggestions = [
-        {
-            "Hạng mục": "Chiến lược giảm giá sản phẩm",
-            "Ngân sách": f"{discount_budget:,} VND",
-            "Chi tiết": (
-                "Phân bổ ngân sách này để chạy các chương trình giảm giá từ 10-15% "
-                "cho các sản phẩm có sức mua thấp hoặc sản phẩm mới ra mắt. Điều này "
-                "giúp kích thích khách hàng quan tâm và tăng lượng chuyển đổi."
-            )
-        },
-        {
-            "Hạng mục": "Quảng cáo livestream chuyên sâu",
-            "Ngân sách": f"{livestream_ads:,} VND",
-            "Chi tiết": (
-                "Đầu tư vào việc quảng bá livestream trên các nền tảng hot như Shopee và TikTok. "
-                "Hướng dẫn sử dụng sản phẩm và các chương trình khuyến mãi độc quyền chỉ có trong livestream "
-                "để tăng doanh số ngay lập tức. Hãy đặt lịch livestream vào khung giờ cao điểm."
-            )
-        },
-        {
-            "Hạng mục": "Quảng cáo bài viết truyền thông",
-            "Ngân sách": f"{post_ads:,} VND",
-            "Chi tiết": (
-                "Sử dụng ngân sách này để chạy quảng cáo các bài viết giới thiệu sản phẩm trên mạng xã hội "
-                "như Facebook, Instagram. Tập trung vào nội dung hấp dẫn như hình ảnh trực quan, video sáng tạo, "
-                "và thông điệp kêu gọi hành động rõ ràng để thu hút khách hàng tiềm năng."
-            )
-        },
-        {
-            "Hạng mục": "Sáng tạo nội dung và kịch bản",
-            "Ngân sách": f"{script_budget:,} VND",
-            "Chi tiết": (
-                "Thuê đội ngũ viết nội dung chuyên nghiệp hoặc tự xây dựng các kịch bản livestream, bài viết "
-                "để đảm bảo chiến dịch của bạn có sự khác biệt và đột phá. Nội dung hấp dẫn sẽ thu hút người xem "
-                "và tăng tỷ lệ chuyển đổi."
-            )
-        },
-        {
-            "Hạng mục": "Ngân sách linh hoạt",
-            "Ngân sách": f"{remaining_budget:,} VND",
-            "Chi tiết": (
-                "Dự phòng cho các ý tưởng sáng tạo mới hoặc các chiến dịch bất ngờ. Ngân sách này có thể được dùng "
-                "để xử lý các vấn đề phát sinh hoặc thúc đẩy chiến dịch mạnh mẽ hơn khi cần thiết."
-            )
+    def generate_affiliate_plan(sales_data, products, platforms):
+        """
+        Generate an Affiliate plan with recommendations for cost allocation.
+        """
+        total_sales = sales_data['Daily Sales'].sum()
+        product_sales = sales_data.groupby('Product')['Daily Sales'].sum()
+    
+        # Ngân sách đề xuất (giả định tổng ngân sách từ 20-35 triệu)
+        total_budget = np.random.randint(20_000_000, 35_000_000)
+    
+        # Chi phí phân bổ
+        discount_budget = np.random.randint(5_000_000, 10_000_000)  # Giảm giá sản phẩm
+        livestream_ads = 5_000_000  # Quảng cáo livestream
+        post_ads = 5_000_000  # Chạy quảng cáo bài viết
+        script_budget = 5_000_000  # Kịch bản livestream và bài đăng
+        remaining_budget = total_budget - (discount_budget + livestream_ads + post_ads + script_budget)
+    
+        # Gợi ý nội dung chuyên nghiệp và hấp dẫn
+        suggestions = [
+            {
+                "Hạng mục": "Chiến lược giảm giá sản phẩm",
+                "Ngân sách": f"{discount_budget:,} VND",
+                "Chi tiết": (
+                    "Phân bổ ngân sách này để chạy các chương trình giảm giá từ 10-15% "
+                    "cho các sản phẩm có sức mua thấp hoặc sản phẩm mới ra mắt. Điều này "
+                    "giúp kích thích khách hàng quan tâm và tăng lượng chuyển đổi."
+                )
+            },
+            {
+                "Hạng mục": "Quảng cáo livestream chuyên sâu",
+                "Ngân sách": f"{livestream_ads:,} VND",
+                "Chi tiết": (
+                    "Đầu tư vào việc quảng bá livestream trên các nền tảng hot như Shopee và TikTok. "
+                    "Hướng dẫn sử dụng sản phẩm và các chương trình khuyến mãi độc quyền chỉ có trong livestream "
+                    "để tăng doanh số ngay lập tức. Hãy đặt lịch livestream vào khung giờ cao điểm."
+                )
+            },
+            {
+                "Hạng mục": "Quảng cáo bài viết truyền thông",
+                "Ngân sách": f"{post_ads:,} VND",
+                "Chi tiết": (
+                    "Sử dụng ngân sách này để chạy quảng cáo các bài viết giới thiệu sản phẩm trên mạng xã hội "
+                    "như Facebook, Instagram. Tập trung vào nội dung hấp dẫn như hình ảnh trực quan, video sáng tạo, "
+                    "và thông điệp kêu gọi hành động rõ ràng để thu hút khách hàng tiềm năng."
+                )
+            },
+            {
+                "Hạng mục": "Sáng tạo nội dung và kịch bản",
+                "Ngân sách": f"{script_budget:,} VND",
+                "Chi tiết": (
+                    "Thuê đội ngũ viết nội dung chuyên nghiệp hoặc tự xây dựng các kịch bản livestream, bài viết "
+                    "để đảm bảo chiến dịch của bạn có sự khác biệt và đột phá. Nội dung hấp dẫn sẽ thu hút người xem "
+                    "và tăng tỷ lệ chuyển đổi."
+                )
+            },
+            {
+                "Hạng mục": "Ngân sách linh hoạt",
+                "Ngân sách": f"{remaining_budget:,} VND",
+                "Chi tiết": (
+                    "Dự phòng cho các ý tưởng sáng tạo mới hoặc các chiến dịch bất ngờ. Ngân sách này có thể được dùng "
+                    "để xử lý các vấn đề phát sinh hoặc thúc đẩy chiến dịch mạnh mẽ hơn khi cần thiết."
+                )
             },
         ]
-
+    
         return suggestions
-
+    
     # Thêm phần chiến dịch Affiliate dưới biểu đồ
     if page == "Phân Tích Sản Phẩm":
         st.title("Định Hướng Chiến Dịch Affiliate")
@@ -232,7 +233,6 @@ def generate_affiliate_plan(sales_data, products, platforms):
             st.write(f"**Ngân sách:** {suggestion['Ngân sách']}")
             st.caption(suggestion['Chi tiết'])
 
-            
         
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
