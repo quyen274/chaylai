@@ -47,7 +47,7 @@ pie_placeholder1 = st.empty()
 pie_placeholder2 = st.empty()
 chart_placeholder = st.empty()
 
-ddef update_kpis_and_pies():
+def update_kpis_and_pies():
     global current_revenue, current_cost, sales_by_platform, sales_by_product
 
     # Update revenue and cost
@@ -115,7 +115,6 @@ ddef update_kpis_and_pies():
         unsafe_allow_html=True
     )
 
-    
 
 # Prepare data for visualization
 def prepare_data(data):
