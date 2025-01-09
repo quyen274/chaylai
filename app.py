@@ -47,7 +47,7 @@ pie_placeholder1 = st.empty()
 pie_placeholder2 = st.empty()
 chart_placeholder = st.empty()
 
-def update_kpis_and_pies():
+ddef update_kpis_and_pies():
     global current_revenue, current_cost, sales_by_platform, sales_by_product
 
     # Update revenue and cost
@@ -68,12 +68,6 @@ def update_kpis_and_pies():
     for platform in sales_by_platform:
         sales_by_platform[platform] = (sales_by_platform[platform] / platform_total_new) * 100
 
-    # Create Pie Chart: Sales by Platform
-    platform_labels = list(sales_by_platform.keys())
-    platform_values = list(sales_by_platform.values())
-    fig1 = go.Figure(data=[go.Pie(labels=platform_labels, values=platform_values)])
-    fig1.update_layout(title="Số Lượng Bán Theo Sàn")
-
     # Update Pie chart: Số lượng bán theo loại sản phẩm
     product_total = sum(sales_by_product.values())
     for product in sales_by_product:
@@ -82,18 +76,20 @@ def update_kpis_and_pies():
     for product in sales_by_product:
         sales_by_product[product] = (sales_by_product[product] / product_total_new) * 100
 
-    # Create Pie Chart: Sales by Product
+    # Generate Pie Charts
+    platform_labels = list(sales_by_platform.keys())
+    platform_values = list(sales_by_platform.values())
     product_labels = list(sales_by_product.keys())
     product_values = list(sales_by_product.values())
+
+    fig1 = go.Figure(data=[go.Pie(labels=platform_labels, values=platform_values)])
+    fig1.update_layout(title="Số Lượng Bán Theo Sàn")
+
     fig2 = go.Figure(data=[go.Pie(labels=product_labels, values=product_values)])
     fig2.update_layout(title="Số Lượng Bán Theo Loại Sản Phẩm")
 
-    # Display updated Pie charts
-    with pie_placeholder1.container():
-        st.plotly_chart(fig1, use_container_width=True)
-    with pie_placeholder2.container():
-        st.plotly_chart(fig2, use_container_width=True)
-     st.markdown("""
+    # Inject CSS for layout control
+    st.markdown("""
         <style>
         .container {
             display: flex;
@@ -118,6 +114,8 @@ def update_kpis_and_pies():
         f'</script>',
         unsafe_allow_html=True
     )
+
+    
 
 # Prepare data for visualization
 def prepare_data(data):
