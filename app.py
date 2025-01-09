@@ -82,62 +82,63 @@ if page == "Phân Tích Sản Phẩm":
     for col, fig in zip(cols, fig_pie_row):
         with col:
             st.plotly_chart(fig, use_container_width=False)
-     # Biểu đồ cột và đường: Tổng số lượng bán ra theo sản phẩm trong 30 ngày gần nhất tách theo sàn
-daily_sales_last_30 = daily_sales[daily_sales['Date'] >= (daily_sales['Date'].max() - pd.Timedelta(days=30))]
-
-# Group data by 3-day intervals
-def group_by_three_days(df):
-    df['3DayGroup'] = (df['Date'].dt.day - 1) // 3  # Group days into intervals of 3
-    return df.groupby(['Platform', 'Product', '3DayGroup']).agg({
-        'Daily Sales': 'sum',
-        'Date': 'first'  # Keep the first date of the group for labeling
-    }).reset_index()
-
-grouped_sales = group_by_three_days(daily_sales_last_30)
-
-# Display charts for each platform
-for platform in platforms:
-    st.subheader(f"{platform}")
-    platform_data = grouped_sales[grouped_sales['Platform'] == platform]
-
-    # Create 4 columns for products
-    cols = st.columns(4)
-
-    for i, product in enumerate(products):
-        product_data = platform_data[platform_data['Product'] == product]
-
-        if not product_data.empty:
-            fig = go.Figure()
-
-            # Bar chart for total sales per 3-day interval
-            fig.add_trace(go.Bar(
-                x=product_data['Date'],
-                y=product_data['Daily Sales'],
-                name='3-Day Total Sales',
-                marker_color='blue'
-            ))
-
-            # Line chart for daily sales in the same interval
-            fig.add_trace(go.Scatter(
-                x=product_data['Date'],
-                y=product_data['Daily Sales'],
-                mode='lines+markers',
-                name='Daily Sales',
-                line=dict(color='red')
-            ))
-
-            fig.update_layout(
-                title=f"Sales for {product} (Last 30 Days)",
-                xaxis_title="Date",
-                yaxis_title="Sales",
-                legend_title="Legend",
-                xaxis=dict(tickangle=45),
-                margin=dict(l=20, r=20, t=30, b=20),
-                height=300
-            )
-
-            # Display in the corresponding column
-            cols[i % 4].plotly_chart(fig, use_container_width=True)
+         # Biểu đồ cột và đường: Tổng số lượng bán ra theo sản phẩm trong 30 ngày gần nhất tách theo sàn
+    daily_sales_last_30 = daily_sales[daily_sales['Date'] >= (daily_sales['Date'].max() - pd.Timedelta(days=30))]
+    
+    # Group data by 3-day intervals
+    def group_by_three_days(df):
+        df['3DayGroup'] = (df['Date'].dt.day - 1) // 3  # Group days into intervals of 3
+        return df.groupby(['Platform', 'Product', '3DayGroup']).agg({
+            'Daily Sales': 'sum',
+            'Date': 'first'  # Keep the first date of the group for labeling
+        }).reset_index()
+    
+    grouped_sales = group_by_three_days(daily_sales_last_30)
+    
+    # Display charts for each platform
+    for platform in platforms:
+        st.subheader(f"{platform}")
+        platform_data = grouped_sales[grouped_sales['Platform'] == platform]
+    
+        # Create 4 columns for products
+        cols = st.columns(4)
+    
+        for i, product in enumerate(products):
+            product_data = platform_data[platform_data['Product'] == product]
+    
+            if not product_data.empty:
+                fig = go.Figure()
+    
+                # Bar chart for total sales per 3-day interval
+                fig.add_trace(go.Bar(
+                    x=product_data['Date'],
+                    y=product_data['Daily Sales'],
+                    name='3-Day Total Sales',
+                    marker_color='blue'
+                ))
+    
+                # Line chart for daily sales in the same interval
+                fig.add_trace(go.Scatter(
+                    x=product_data['Date'],
+                    y=product_data['Daily Sales'],
+                    mode='lines+markers',
+                    name='Daily Sales',
+                    line=dict(color='red')
+                ))
+    
+                fig.update_layout(
+                    title=f"Sales for {product} (Last 30 Days)",
+                    xaxis_title="Date",
+                    yaxis_title="Sales",
+                    legend_title="Legend",
+                    xaxis=dict(tickangle=45),
+                    margin=dict(l=20, r=20, t=30, b=20),
+                    height=300
+                )
+    
+                # Display in the corresponding column
+                cols[i % 4].plotly_chart(fig, use_container_width=True)
+            
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
     st.write("Hiển thị doanh số, lợi nhuận và thông tin liên quan.")
