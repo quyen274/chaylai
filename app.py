@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+import plotly.exprees as px
 import plotly.graph_objects as go
 import time
 
@@ -33,27 +33,51 @@ if page == "Phân Tích Sản Phẩm":
     daily_sales['Month'] = daily_sales['Date'].dt.to_period('M')
     sales_by_month = daily_sales.groupby(['Month', 'Platform'])['Daily Sales'].sum().unstack()
 
-    fig, ax = plt.subplots(figsize=(8, 4))  # Adjusted size
-    sales_by_month.plot(kind='bar', ax=ax, colormap='viridis')
-    ax.set_title('Total Sales by Month and Platform')
-    ax.set_xlabel('Month')
-    ax.set_ylabel('Total Sales')
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
-    ax.legend(title='Platform')
-    st.pyplot(fig)
+    fig_bar = px.bar(
+        sales_by_month,
+        x='Month',
+        y='Daily Sales',
+        color='Platform',
+        barmode='group',
+        title='Total Sales by Month and Platform',
+        labels={'Daily Sales': 'Total Sales', 'Month': 'Month'},
+        color_discrete_sequence=px.colors.qualitative.Vivid,
+    )
+
+    fig_bar.update_layout(
+        xaxis=dict(tickangle=45),  # Xoay nhãn trục X
+        title=dict(x=0.5),  # Canh giữa tiêu đề
+        margin=dict(l=20, r=20, t=50, b=20),  # Lề gọn hơn
+        height=400,  # Chiều cao biểu đồ
+    )
+
+    # Hiển thị biểu đồ
+    st.plotly_chart(fig_bar, use_container_width=True)
 
     # 2. Pie Chart: Sản phẩm trong giỏ hàng
     platforms = cart_data['Platform'].unique()
-    fig, axes = plt.subplots(1, len(platforms), figsize=(12, 4))  # Adjusted size
-    for i, platform in enumerate(platforms):
-        platform_cart = cart_data[cart_data['Platform'] == platform]
-        items_in_cart = platform_cart.groupby('Product')['Items in Cart'].sum()
-        items_in_cart.plot(kind='pie', autopct='%1.1f%%', ax=axes[i])
-        axes[i].set_title(f'Cart Distribution on {platform}')
-        axes[i].set_ylabel('')
+    for platform in platforms:
+    platform_cart = cart_data[cart_data['Platform'] == platform]
+    items_in_cart = platform_cart.groupby('Product')['Items in Cart'].sum().reset_index()
 
-    plt.suptitle('Product Distribution in Carts by Platform')
-    st.pyplot(fig)
+    # Tạo biểu đồ tròn cho từng nền tảng
+    fig_pie = px.pie(
+        items_in_cart,
+        names='Product',
+        values='Items in Cart',
+        title=f'Cart Distribution on {platform}',
+        color_discrete_sequence=px.colors.qualitative.Pastel,
+    )
+
+    fig_pie.update_traces(textinfo='percent+label')  # Hiển thị phần trăm và nhãn
+    fig_pie.update_layout(
+        title=dict(x=0.5),  # Canh giữa tiêu đề
+        margin=dict(l=20, r=20, t=50, b=20),  # Lề gọn
+        height=400,  # Chiều cao biểu đồ
+    )
+
+    # Hiển thị biểu đồ tròn
+    st.plotly_chart(fig_pie, use_container_width=True)
 
 elif page == "Báo Cáo Tự Động Về Doanh Số":
     st.title('Báo Cáo Tự Động Về Doanh Số')
