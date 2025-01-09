@@ -142,8 +142,8 @@ if page == "Phân Tích Sản Phẩm":
         # Display plot
         with cols[i % len(cols)]:
             st.plotly_chart(fig, use_container_width=True)
+    
         st.subheader("Kế Hoạch Chi Phí Cho Affiliate Marketing")
-
         # Define cost breakdown
         categories = [
             "Giảm giá sản phẩm",
