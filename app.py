@@ -6,6 +6,9 @@ import plotly.graph_objects as go
 import time
 import json
 
+with open("scenarios.json", "r", encoding="utf-8") as file:
+        scenarios = json.load(file)
+    
 # Load the existing dataset
 current_day_sales = pd.read_csv('current_day_sales.csv')
 current_day_sales['Time'] = pd.to_datetime(current_day_sales['Time'])
@@ -233,6 +236,33 @@ if page == "Phân Tích Sản Phẩm":
             st.subheader(suggestion['Hạng mục'])
             st.write(f"**Ngân sách:** {suggestion['Ngân sách']}")
             st.caption(suggestion['Chi tiết'])
+        if "current_scenario_index" not in st.session_state:
+            st.session_state["current_scenario_index"] = 0
+
+        # Hiển thị kịch bản hiện tại
+        scenario = scenarios[st.session_state["current_scenario_index"]]
+        st.write(f"### {scenario['title']}")
+        st.markdown(f"**Mục tiêu:** {scenario['objective']}")
+    
+        st.write("**Phân bổ ngân sách:**")
+        for item, cost in scenario['allocation'].items():
+            st.write(f"- **{item}:** {cost}")
+    
+        st.write("**Lịch trình hoạt động:**")
+        for task in scenario['schedule']:
+            st.write(f"- {task}")
+    
+        st.write("**Chương trình khuyến mãi:**")
+        st.markdown(scenario['promotion'])
+    
+        st.write("**Kỳ vọng hiệu quả:**")
+        st.markdown(scenario['expected'])
+    
+        # Nút chuyển kịch bản
+        if st.button("Gen kịch bản khác"):
+            st.session_state["current_scenario_index"] = (
+                st.session_state["current_scenario_index"] + 1
+            ) % len(scenarios)
     
         
 elif page == "Báo Cáo Tự Động Về Doanh Số":
