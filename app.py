@@ -168,3 +168,53 @@ while True:
 
     # Pause for real-time simulation
     time.sleep(5)
+kpi_placeholder = st.empty()
+col1, col2 = st.columns(2)  # Chia màn hình thành 2 cột ngang
+chart_placeholder = st.empty()
+
+def update_kpis_and_pies():
+    global current_revenue, current_cost, sales_by_platform, sales_by_product
+
+    # Update revenue and cost
+    current_revenue += 150_000  # Increase revenue every 5 seconds
+    current_cost = current_revenue * 0.6  # Cost is 60% of revenue
+    profit = current_revenue - current_cost
+
+    # Display KPIs
+    with kpi_placeholder.container():
+        st.metric("Tổng Doanh Thu", f"${current_revenue / 1e6:.2f}M", delta=f"+0.15M")
+        st.metric("Tổng Lợi Nhuận", f"${profit / 1e6:.2f}M", delta=f"+{(150_000 - 150_000 * 0.6) / 1e6:.2f}M")
+
+    # Update Pie chart: Số lượng bán trên từng sàn
+    platform_total = sum(sales_by_platform.values())
+    for platform in sales_by_platform:
+        sales_by_platform[platform] += np.random.uniform(0.1, 2.0)
+    platform_total_new = sum(sales_by_platform.values())
+    for platform in sales_by_platform:
+        sales_by_platform[platform] = (sales_by_platform[platform] / platform_total_new) * 100
+
+    # Create Pie Chart: Sales by Platform
+    platform_labels = list(sales_by_platform.keys())
+    platform_values = list(sales_by_platform.values())
+    fig1 = go.Figure(data=[go.Pie(labels=platform_labels, values=platform_values)])
+    fig1.update_layout(title="Số Lượng Bán Theo Sàn")
+
+    # Update Pie chart: Số lượng bán theo loại sản phẩm
+    product_total = sum(sales_by_product.values())
+    for product in sales_by_product:
+        sales_by_product[product] += np.random.uniform(0.5, 1.0)
+    product_total_new = sum(sales_by_product.values())
+    for product in sales_by_product:
+        sales_by_product[product] = (sales_by_product[product] / product_total_new) * 100
+
+    # Create Pie Chart: Sales by Product
+    product_labels = list(sales_by_product.keys())
+    product_values = list(sales_by_product.values())
+    fig2 = go.Figure(data=[go.Pie(labels=product_labels, values=product_values)])
+    fig2.update_layout(title="Số Lượng Bán Theo Loại Sản Phẩm")
+
+    # Display updated Pie charts in two columns
+    with col1:
+        st.plotly_chart(fig1, use_container_width=True)
+    with col2:
+        st.plotly_chart(fig2, use_container_width=True)
