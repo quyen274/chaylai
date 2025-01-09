@@ -34,27 +34,6 @@ fig2.update_layout(title="Số Lượng Bán Theo Loại Sản Phẩm")
 st.plotly_chart(fig1, use_container_width=True)
 st.plotly_chart(fig2, use_container_width=True)
 
-# Main chart: Doanh số theo thời gian
-grouped = current_day_sales.groupby(['Time', 'Platform']).sum().unstack(fill_value=0)
-fig3 = go.Figure()
-
-for platform in grouped['Sales (15 min)']:
-    fig3.add_trace(go.Scatter(
-        x=grouped.index,
-        y=grouped['Sales (15 min)', platform],
-        mode='lines+markers',
-        name=platform
-    ))
-
-fig3.update_layout(
-    title="Doanh Số Theo Thời Gian",
-    xaxis_title="Thời Gian",
-    yaxis_title="Doanh Số",
-    template="plotly_white"
-)
-
-# Display the main chart
-st.plotly_chart(fig3, use_container_width=True)
 platforms = current_day_sales['Platform'].unique()
 products = current_day_sales['Product'].unique()
 
