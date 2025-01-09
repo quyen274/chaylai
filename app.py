@@ -50,7 +50,7 @@ if page == "Phân Tích Sản Phẩm":
         xaxis=dict(tickangle=45),
         margin=dict(l=20, r=20, t=50, b=20),
         height=700,
-        width=400  # Điều chỉnh độ rộng biểu đồ
+        width=500 
     )
 
     # Hiển thị biểu đồ cột
