@@ -57,8 +57,7 @@ if page == "Phân Tích Sản Phẩm":
         width=500 
     )
 
-    # Hiển thị biểu đồ cột
-    st.plotly_chart(fig_bar, use_container_width=True)
+   
 
     # Biểu đồ tròn: Phân phối sản phẩm trong giỏ hàng
     cart_data = pd.read_csv('items_in_cart.csv')
